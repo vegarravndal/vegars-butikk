@@ -1,5 +1,5 @@
 {
-  "name": "vegars-store",
+  "name": "vegars-butikk",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -45,15 +45,7 @@
   },
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "eslint.config.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vegar24sfj/my-webstore.git"
-  },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/vegar24sfj/my-webstore/issues"
-  },
-  "homepage": "https://github.com/vegar24sfj/my-webstore#readme"
+  "license": "ISC"
 }
