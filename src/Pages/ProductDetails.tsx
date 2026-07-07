@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useStore } from "../store/store";
 import { Product } from "../types/types";
 
-interface ProductDetailsProps {
-  addToCart: (product: Product, quantity: number) => void;
-}
-
-const ProductDetails: React.FC<ProductDetailsProps> = ({ addToCart }) => {
+const ProductDetails: React.FC = () => {
   const { id } = useParams();
-  const { originalProducts } = useStore();
+  const { originalProducts, addToCart } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -41,6 +37,32 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ addToCart }) => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <div className="px-4 py-2">
+        <nav aria-label="Breadcrumb">
+          <ol className="flex text-gray-700 space-x-2">
+            <li>
+              <Link className="text-blue-500 hover:text-blue-700" to="/">
+                Home
+              </Link>
+            </li>
+            <li className="flex items-center">
+              <span className="mx-2">/</span>
+              <Link
+                className="text-blue-500 hover:text-blue-700"
+                to="/shop"
+                state={{ selectedCategory: product.mainCategory || product.category }}
+              >
+                Product
+              </Link>
+            </li>
+            <li className="flex items-center">
+              <span className="mx-2">/</span>
+              <span className="text-gray-500">{product.id}</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
         {product.name}
       </h1>

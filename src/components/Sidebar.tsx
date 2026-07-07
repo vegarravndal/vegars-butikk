@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { FaMinus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useStore } from "../store/store";
+import { FaMinus, FaChevronDown, FaChevronRight } from "react-icons/fa";
 
 type SidebarProps = {
   selectedCategory: string | null;
@@ -17,39 +19,111 @@ const Sidebar = ({
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
 
-  const categories = ["electronics", "clothing", "home"];
+  // derive categories dynamically from products (use mainCategory when available)
+  const { originalProducts } = useStore();
+  const navigate = useNavigate();
+  const set = new Set(originalProducts.map((p) => p.mainCategory || p.category));
+  const primaryOrder = ["electronics", "clothing", "home"];
+  const categories = [
+    ...primaryOrder.filter((c) => set.has(c)),
+    ...Array.from(set).filter((c) => !primaryOrder.includes(c)),
+  ];
+
+  const [openCats, setOpenCats] = useState<Set<string>>(new Set());
+
+  const toggleCat = (cat: string) => {
+    setOpenCats((prev) => {
+      const copy = new Set(prev);
+      if (copy.has(cat)) copy.delete(cat);
+      else copy.add(cat);
+      return copy;
+    });
+  };
 
   return (
-    <aside className="w-full sm:w-64">
+    <aside className="w-64">
       <div className="p-4 sm:p-6">
         {/* Categories */}
         <h2 className="text-xl font-semibold mb-2">Categories</h2>
         <FaMinus className="text-gray-300 mb-4" />
         <ul className="space-y-2">
-          <li
-            className={`cursor-pointer ${
-              selectedCategory === null
-                ? "text-blue-500 font-semibold"
-                : "text-gray-700 hover:text-blue-500"
-            }`}
-            onClick={() => onCategoryChange(null)}
-          >
-            All Categories
-          </li>
-
-          {categories.map((category) => (
-            <li
-              key={category}
-              className={`cursor-pointer ${
-                selectedCategory === category
+          <li className="flex items-center justify-between">
+            <button
+              className={`text-left w-full cursor-pointer ${
+                selectedCategory === null
                   ? "text-blue-500 font-semibold"
                   : "text-gray-700 hover:text-blue-500"
               }`}
-              onClick={() => onCategoryChange(category)}
+              onClick={() => onCategoryChange(null)}
             >
-              {category}
-            </li>
-          ))}
+              All Categories
+            </button>
+            <button
+              onClick={() => toggleCat("__all")}
+              className="p-1 text-gray-400 hover:text-gray-600"
+            >
+              {openCats.has("__all") ? <FaChevronDown /> : <FaChevronRight />}
+            </button>
+          </li>
+
+          {openCats.has("__all") && (
+            <div className="mt-2">
+              <button
+                onClick={() => {
+                  onCategoryChange(null);
+                  navigate('/shop');
+                }}
+                className="w-full text-sm text-left text-blue-600 hover:underline"
+              >
+                Vis mer
+              </button>
+            </div>
+          )}
+
+          {categories.map((category) => {
+            const items = originalProducts.filter(
+              (p) => (p.mainCategory || p.category) === category
+            );
+            return (
+              <li key={category}>
+                <div className="flex items-center justify-between">
+                  <button
+                    className={`text-left w-full cursor-pointer ${
+                      selectedCategory === category
+                        ? "text-blue-500 font-semibold"
+                        : "text-gray-700 hover:text-blue-500"
+                    }`}
+                    onClick={() => onCategoryChange(category)}
+                  >
+                    {category}
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">{items.length}</span>
+                    <button
+                      onClick={() => toggleCat(category)}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      {openCats.has(category) ? <FaChevronDown /> : <FaChevronRight />}
+                    </button>
+                  </div>
+                </div>
+
+                {openCats.has(category) && items.length > 0 && (
+                  <div className="mt-2">
+                    <button
+                      onClick={() => {
+                        onCategoryChange(category);
+                        navigate(`/shop/${category}`);
+                      }}
+                      className="w-full text-sm text-left text-blue-600 hover:underline"
+                    >
+                      Vis mer
+                    </button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         {/* Sort */}

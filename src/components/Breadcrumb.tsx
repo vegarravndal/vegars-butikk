@@ -17,7 +17,7 @@ export function Breadcrumb() {
       (p) => String(p.id) === String(productId)
     );
 
-    const category = product?.category ?? null;
+    const category = product?.mainCategory || product?.category || null;
 
     return (
       <div className="px-4 py-2">

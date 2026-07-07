@@ -4,29 +4,26 @@ import { Link, useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
 
-interface ShopProps {
-  products: Product[];
-  addToCart: (product: Product, quantity: number) => void;
-}
-
 // Type for location.state
 interface ShopState {
   selectedCategory?: string | null;
 }
 
-const Shop: React.FC<ShopProps> = ({ products, addToCart }) => {
+const Shop: React.FC = () => {
   const {
     selectedCategory,
     setSelectedCategory,
     setProducts,
     originalProducts,
+    products,
+    addToCart,
   } = useStore();
 
   const { category } = useParams();
   const location = useLocation();
   const state = location.state as ShopState | null;
 
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products || []);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">(
@@ -55,10 +52,10 @@ const Shop: React.FC<ShopProps> = ({ products, addToCart }) => {
   useEffect(() => {
     let result = [...originalProducts];
 
-    // Kategori
+    // Kategori (bruk mainCategory når tilgjengelig)
     if (selectedCategory) {
       result = result.filter(
-        (product) => product.category === selectedCategory
+        (product) => (product.mainCategory || product.category) === selectedCategory
       );
     }
 
@@ -96,7 +93,7 @@ const Shop: React.FC<ShopProps> = ({ products, addToCart }) => {
     setSortOrder(order);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-row gap-6 items-start">
       {/* Sidebar */}
       <Sidebar
   selectedCategory={selectedCategory}
@@ -112,45 +109,74 @@ const Shop: React.FC<ShopProps> = ({ products, addToCart }) => {
           Shop
         </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="p-4 bg-white rounded shadow hover:shadow-lg transition"
-              >
-                <Link
-                  to={`/product/${product.id}`}
-                  state={{ fromCategory: selectedCategory }}
-                >
-                  <img
-                    src={product.imageUrl || "/fallback.jpg"}
-                    alt={product.name}
-                    className="w-full h-48 object-cover mb-4 rounded"
-                  />
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {product.name}
-                  </h3>
-                </Link>
+        {filteredProducts.length === 0 ? (
+          <div className="text-gray-700 text-center">No products available</div>
+        ) : (
+          // Group products by categories: prefer primary categories, then any others
+          (() => {
+            const primary = ["electronics", "clothing", "home"];
+            const others = Array.from(
+              new Set(
+                filteredProducts
+                  .map((p) => p.mainCategory || p.category)
+                  .filter((c) => !primary.includes(c))
+              )
+            );
+            const categoriesToShow = [...primary, ...others];
 
-                <p className="text-lg text-gray-700 mb-2">
-                  ${product.price}
-                </p>
+            return (
+              <div className="space-y-8">
+                {categoriesToShow.map((cat) => {
+                  const items = filteredProducts.filter(
+                    (p) => (p.mainCategory || p.category) === cat
+                  );
+                  if (items.length === 0) return null;
+                  return (
+                    <section key={cat}>
+                      <h2 className="text-2xl font-semibold mb-4 capitalize">{cat}</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {items.map((product) => (
+                          <div
+                            key={product.id}
+                            className="p-4 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full"
+                          >
+                            <Link
+                              to={`/product/${product.id}`}
+                              state={{ fromCategory: selectedCategory }}
+                              className="block"
+                            >
+                              <img
+                                src={product.imageUrl || "/fallback.jpg"}
+                                alt={product.name}
+                                className="w-full h-48 object-cover mb-4 rounded"
+                              />
+                              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                                {product.name}
+                              </h3>
+                            </Link>
 
-                <button
-                  onClick={() => addToCart(product, 1)}
-                  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-                >
-                  Add to Cart
-                </button>
+                            <div className="mt-auto">
+                              <p className="text-lg text-gray-700 mb-2">
+                                ${product.price}
+                              </p>
+
+                              <button
+                                onClick={() => addToCart(product, 1)}
+                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+                              >
+                                Add to Cart
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
-            ))
-          ) : (
-            <p className="text-gray-700 text-center col-span-full">
-              No products available
-            </p>
-          )}
-        </div>
+            );
+          })()
+        )}
       </main>
     </div>
   );

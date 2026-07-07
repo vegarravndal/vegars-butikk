@@ -117,7 +117,7 @@ function App() {
               element={
                 <>
                   <Breadcrumb />
-                  <Shop products={originalProducts} addToCart={addToCart} />
+                  <Shop />
                 </>
               }
             />
@@ -126,7 +126,7 @@ function App() {
               element={
                 <>
                   <Breadcrumb />
-                  <Shop products={originalProducts} addToCart={addToCart} />
+                  <Shop />
                 </>
               }
             />
@@ -135,7 +135,7 @@ function App() {
               element={
                 <>
                   <Breadcrumb />
-                  <ProductDetails addToCart={addToCart} />
+                  <ProductDetails />
                 </>
               }
             />
