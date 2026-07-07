@@ -30,7 +30,6 @@ function App() {
   const {
     cart,
     originalProducts,
-    addToCart,
     removeFromCart,
     setCart,
     setProducts,
