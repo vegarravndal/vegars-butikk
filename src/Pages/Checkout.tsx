@@ -62,7 +62,7 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
                 className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border-b pb-4"
               >
                 {/* Bilde */}
-                <Link to={`/product/${item.id}`}>
+                <Link to={`/product/${item.id}`} state={{ fromCheckout: true }}>
                   <img
                     src={item.imageUrl || "/images/default.png"}
                     alt={item.name}
@@ -73,7 +73,7 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
                 {/* Produktinfo */}
                 <div className="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>
-                    <Link to={`/product/${item.id}`}>
+                    <Link to={`/product/${item.id}`} state={{ fromCheckout: true }}>
                       <h2 className="text-xl font-semibold hover:text-blue-500">
                         {item.name}
                       </h2>

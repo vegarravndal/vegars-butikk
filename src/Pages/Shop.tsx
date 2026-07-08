@@ -119,7 +119,7 @@ const Shop: React.FC = () => {
 
       {/* Produkter */}
       <main className="flex-1 p-6 lg:p-8 overflow-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-left">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
           Shop
         </h1>
 
@@ -148,11 +148,11 @@ const Shop: React.FC = () => {
                   return (
                     <section key={cat}>
                       <h2 className="text-2xl font-semibold mb-4 capitalize">{getCategoryDisplayName(cat)}</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {items.map((product) => (
                           <div
                             key={product.id}
-                            className="p-3 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full"
+                            className="p-2 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full min-h-72"
                           >
                             <Link
                               to={`/product/${product.id}`}
@@ -162,24 +162,24 @@ const Shop: React.FC = () => {
                               <img
                                 src={product.imageUrl || "/fallback.jpg"}
                                 alt={product.name}
-                                className="w-full h-40 object-cover mb-3 rounded"
+                                className="w-full aspect-square object-cover mb-2 rounded"
                               />
-                              <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                              <h3 className="text-xs font-semibold text-gray-800 mb-2">
                                 {product.name}
                               </h3>
                             </Link>
 
-                            <div className="mt-auto flex items-center justify-between gap-2">
-                              <p className="text-sm text-gray-700">
+                            <div className="mt-auto flex items-center justify-between gap-1">
+                              <p className="text-xs text-gray-700">
                                 ${product.price}
                               </p>
 
                               <button
                                 onClick={() => handleAddToCart(product, 1)}
-                                className="relative bg-white text-black border border-black p-2 rounded hover:bg-gray-100 transition flex items-center justify-center"
+                                className="relative bg-white text-black border border-black p-1 rounded hover:bg-gray-100 transition flex items-center justify-center"
                                 title="Add to Cart"
                               >
-                                <FaShoppingCart size={18} />
+                                <FaShoppingCart size={14} />
                                 {animations
                                   .filter((anim) => anim.productId === product.id)
                                   .map((anim) => (

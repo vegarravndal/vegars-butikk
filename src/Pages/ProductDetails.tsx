@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../store/store";
 import { Product } from "../types/types";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { originalProducts, addToCart } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
@@ -67,6 +69,23 @@ const ProductDetails: React.FC = () => {
             >
               Add to Cart
             </button>
+            <button
+              onClick={() => {
+                addToCart(product, quantity);
+                navigate("/checkout");
+              }}
+              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
+            >
+              Checkout
+            </button>
+            {location.state?.fromCheckout && (
+              <button
+                onClick={() => navigate("/checkout")}
+                className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
+              >
+                Back to Checkout
+              </button>
+            )}
           </div>
 
           {/* Review & Rating Section */}
