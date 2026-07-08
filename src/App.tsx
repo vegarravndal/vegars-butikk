@@ -31,6 +31,7 @@ function App() {
     cart,
     originalProducts,
     removeFromCart,
+    clearCart,
     setCart,
     setProducts,
   } = useStore();
@@ -161,6 +162,7 @@ function App() {
         <Cart
           cart={cart}
           removeFromCart={removeFromCart}
+          clearCart={clearCart}
           isCartOpen={isCartOpen}
           closeCart={closeCart}
         />

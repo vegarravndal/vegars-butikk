@@ -77,6 +77,12 @@ export const useStore = create<Store>((set) => {
         return { cart: newCart };
       }),
 
+    clearCart: () =>
+      set(() => {
+        saveCartToLocalStorage([]);
+        return { cart: [] };
+      }),
+
     setCart: (cart: CartItem[]) => {
       saveCartToLocalStorage(cart);
       set({ cart });
@@ -114,7 +120,7 @@ export const useStore = create<Store>((set) => {
       // helper to map many remote categories into the app's primary categories
       const mapMainCategory = (cat: string | undefined) => {
         const c = (cat || '').toLowerCase();
-        if (/(phone|mobile|laptop|computer|electronics|mobile|accessories|headphone|audio|fragrances|mobile-accessories|mens-watches|mens-shoes|electronics)/.test(c)) return 'electronics';
+        if (/(phone|mobile|laptop|computer|electronics|mobile|accessories|headphone|audio|fragrances|mobile-accessories|mens-watches|mens-shoes|electronics)/.test(c)) return 'accessories';
         if (/(shirt|clothing|mens|womens|beauty|makeup|shoes|apparel|eyeshadow|lipstick|nail|mens-shirts|mens-tshirts)/.test(c)) return 'clothing';
         if (/(home|furniture|kitchen|groceries|grocery|food|home-decoration|kitchen-accessories|garden)/.test(c)) return 'home';
         return 'other';

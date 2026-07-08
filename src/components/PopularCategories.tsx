@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
+import { categoryDisplayNames } from "../utils/categoryNames";
 
 const PopularCategories = () => {
   const categories = [
-    { id: "electronics", name: "Electronics", imageUrl: "/images/1.jpg" },
-    { id: "clothing", name: "Clothing", imageUrl: "/images/2.jpg" },
-    { id: "home", name: "Home", imageUrl: "/images/3.jpg" },
+    { id: "accessories", name: categoryDisplayNames.accessories, imageUrl: "/images/1.jpg" },
+    { id: "clothing", name: categoryDisplayNames.clothing, imageUrl: "/images/2.jpg" },
+    { id: "home", name: categoryDisplayNames.home, imageUrl: "/images/3.jpg" },
   ];
 
   return (

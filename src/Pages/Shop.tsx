@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
+import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
 
@@ -29,6 +31,7 @@ const Shop: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">(
     "price-asc"
   );
+  const [animations, setAnimations] = useState<Array<{ id: string; productId: string }>>([]);
 
   /**
    * Sett valgt kategori:
@@ -92,6 +95,17 @@ const Shop: React.FC = () => {
   const handleSortChange = (order: "price-asc" | "price-desc") =>
     setSortOrder(order);
 
+  const handleAddToCart = (product: Product, quantity: number) => {
+    addToCart(product, quantity);
+    const animationId = `${product.id}-${Date.now()}`;
+    setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
+
+    // Fjern animasjon etter 1.5 sekunder
+    setTimeout(() => {
+      setAnimations((prev) => prev.filter((anim) => anim.id !== animationId));
+    }, 1500);
+  };
+
   return (
     <div className="flex flex-row gap-6 items-start">
       {/* Sidebar */}
@@ -114,7 +128,7 @@ const Shop: React.FC = () => {
         ) : (
           // Group products by categories: prefer primary categories, then any others
           (() => {
-            const primary = ["electronics", "clothing", "home"];
+            const primary = ["accessories", "clothing", "home"];
             const others = Array.from(
               new Set(
                 filteredProducts
@@ -133,12 +147,12 @@ const Shop: React.FC = () => {
                   if (items.length === 0) return null;
                   return (
                     <section key={cat}>
-                      <h2 className="text-2xl font-semibold mb-4 capitalize">{cat}</h2>
+                      <h2 className="text-2xl font-semibold mb-4 capitalize">{getCategoryDisplayName(cat)}</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {items.map((product) => (
                           <div
                             key={product.id}
-                            className="p-4 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full"
+                            className="p-3 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full"
                           >
                             <Link
                               to={`/product/${product.id}`}
@@ -148,23 +162,34 @@ const Shop: React.FC = () => {
                               <img
                                 src={product.imageUrl || "/fallback.jpg"}
                                 alt={product.name}
-                                className="w-full h-48 object-cover mb-4 rounded"
+                                className="w-full h-40 object-cover mb-3 rounded"
                               />
-                              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                              <h3 className="text-sm font-semibold text-gray-800 mb-2">
                                 {product.name}
                               </h3>
                             </Link>
 
-                            <div className="mt-auto">
-                              <p className="text-lg text-gray-700 mb-2">
+                            <div className="mt-auto flex items-center justify-between gap-2">
+                              <p className="text-sm text-gray-700">
                                 ${product.price}
                               </p>
 
                               <button
-                                onClick={() => addToCart(product, 1)}
-                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+                                onClick={() => handleAddToCart(product, 1)}
+                                className="relative bg-white text-black border border-black p-2 rounded hover:bg-gray-100 transition flex items-center justify-center"
+                                title="Add to Cart"
                               >
-                                Add to Cart
+                                <FaShoppingCart size={18} />
+                                {animations
+                                  .filter((anim) => anim.productId === product.id)
+                                  .map((anim) => (
+                                    <div
+                                      key={anim.id}
+                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded font-bold text-lg"
+                                    >
+                                      1
+                                    </div>
+                                  ))}
                               </button>
                             </div>
                           </div>

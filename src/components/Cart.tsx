@@ -6,11 +6,12 @@ import { BsTrash } from "react-icons/bs";
 type CartProps = {
   cart: CartItem[];
   removeFromCart: (id: string) => void;
+  clearCart: () => void;
   isCartOpen: boolean;
   closeCart: () => void;
 };
 
-const Cart = ({ cart, removeFromCart, isCartOpen, closeCart }: CartProps) => {
+const Cart = ({ cart, removeFromCart, clearCart, isCartOpen, closeCart }: CartProps) => {
   const navigate = useNavigate();
   const cartRef = useRef<HTMLDivElement>(null);
 
@@ -93,13 +94,21 @@ const Cart = ({ cart, removeFromCart, isCartOpen, closeCart }: CartProps) => {
           <p>${totalAmount.toFixed(2)}</p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-3">
           <button
             onClick={handleCheckoutClick}
             className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
           >
             Checkout
           </button>
+          {cart.length > 0 && (
+            <button
+              onClick={clearCart}
+              className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            >
+              Fjern alle varer
+            </button>
+          )}
         </div>
       </div>
     </div>

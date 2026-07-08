@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useStore } from "../store/store";
-import { FaMinus, FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { getCategoryDisplayName } from "../utils/categoryNames";
+import { FaMinus } from "react-icons/fa";
 
 type SidebarProps = {
   selectedCategory: string | null;
@@ -21,24 +21,14 @@ const Sidebar = ({
 
   // derive categories dynamically from products (use mainCategory when available)
   const { originalProducts } = useStore();
-  const navigate = useNavigate();
   const set = new Set(originalProducts.map((p) => p.mainCategory || p.category));
-  const primaryOrder = ["electronics", "clothing", "home"];
+  const primaryOrder = ["accessories", "clothing", "home"];
   const categories = [
     ...primaryOrder.filter((c) => set.has(c)),
     ...Array.from(set).filter((c) => !primaryOrder.includes(c)),
   ];
 
-  const [openCats, setOpenCats] = useState<Set<string>>(new Set());
 
-  const toggleCat = (cat: string) => {
-    setOpenCats((prev) => {
-      const copy = new Set(prev);
-      if (copy.has(cat)) copy.delete(cat);
-      else copy.add(cat);
-      return copy;
-    });
-  };
 
   return (
     <aside className="w-64">
@@ -47,7 +37,7 @@ const Sidebar = ({
         <h2 className="text-xl font-semibold mb-2">Categories</h2>
         <FaMinus className="text-gray-300 mb-4" />
         <ul className="space-y-2">
-          <li className="flex items-center justify-between">
+          <li>
             <button
               className={`text-left w-full cursor-pointer ${
                 selectedCategory === null
@@ -58,27 +48,7 @@ const Sidebar = ({
             >
               All Categories
             </button>
-            <button
-              onClick={() => toggleCat("__all")}
-              className="p-1 text-gray-400 hover:text-gray-600"
-            >
-              {openCats.has("__all") ? <FaChevronDown /> : <FaChevronRight />}
-            </button>
           </li>
-
-          {openCats.has("__all") && (
-            <div className="mt-2">
-              <button
-                onClick={() => {
-                  onCategoryChange(null);
-                  navigate('/shop');
-                }}
-                className="w-full text-sm text-left text-blue-600 hover:underline"
-              >
-                Vis mer
-              </button>
-            </div>
-          )}
 
           {categories.map((category) => {
             const items = originalProducts.filter(
@@ -95,32 +65,12 @@ const Sidebar = ({
                     }`}
                     onClick={() => onCategoryChange(category)}
                   >
-                    {category}
+                    {getCategoryDisplayName(category)}
                   </button>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">{items.length}</span>
-                    <button
-                      onClick={() => toggleCat(category)}
-                      className="p-1 text-gray-400 hover:text-gray-600"
-                    >
-                      {openCats.has(category) ? <FaChevronDown /> : <FaChevronRight />}
-                    </button>
                   </div>
                 </div>
-
-                {openCats.has(category) && items.length > 0 && (
-                  <div className="mt-2">
-                    <button
-                      onClick={() => {
-                        onCategoryChange(category);
-                        navigate(`/shop/${category}`);
-                      }}
-                      className="w-full text-sm text-left text-blue-600 hover:underline"
-                    >
-                      Vis mer
-                    </button>
-                  </div>
-                )}
               </li>
             );
           })}

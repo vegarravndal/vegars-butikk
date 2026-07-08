@@ -25,6 +25,7 @@ export interface Store {
   selectedCategory: string | null;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (id: string) => void;
+  clearCart: () => void;
   setCart: (cart: CartItem[]) => void;
   setSelectedCategory: (category: string | null) => void;
   setProducts: (products: Product[]) => void;

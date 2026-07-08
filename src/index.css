@@ -3,3 +3,19 @@
 html {
   overflow-y: scroll;
 }
+
+@keyframes cartPulse {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+
+.animate-cart-pulse {
+  animation: cartPulse 1.5s ease-out forwards;
+  pointer-events: none;
+}
