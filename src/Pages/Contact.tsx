@@ -1,104 +1,79 @@
-const Contact = () => {
+import React, { useState } from "react";
+import axios from "axios";
+
+const Contact: React.FC = () => {
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data = { name, email, message };
+
+    axios
+      .post("/api/contact", data)
+      .then((response) => {
+        console.log(response.data);
+        // Formularen ble sendt og behandlingen var vellykket
+      })
+      .catch((error) => {
+        console.error(error);
+        // Feil ved sending av formularen
+      });
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-4">
       <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
         Contact Us
       </h1>
-
-      <p className="text-lg text-gray-700 mb-6 text-center">
-        Feel free to get in touch with us for any inquiries or support. You can
-        contact us through the following channels:
-      </p>
-
-      {/* Combined Contact Information and Form in a single div */}
-      <div className="space-y-8">
-        {/* Contact Information */}
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Our Information
-          </h2>
-          <ul className="space-y-2 text-gray-700">
-            <li>
-              <strong>Email:</strong>{" "}
-              <a
-                href="mailto:support@example.com"
-                className="text-blue-500 hover:underline"
-              >
-                support@example.com
-              </a>
-            </li>
-            <li>
-              <strong>Phone:</strong>{" "}
-              <a
-                href="tel:+11234567890"
-                className="text-blue-500 hover:underline"
-              >
-                +1 (123) 456-7890
-              </a>
-            </li>
-            <li>
-              <strong>Address:</strong> 123 Main St, City, Country
-            </li>
-          </ul>
+      <form onSubmit={handleSubmit} className="flex flex-col mt-4">
+        <div className="flex flex-col">
+          <label htmlFor="name" className="font-bold">
+            Navn:
+          </label>
+          <input
+            type="text"
+            id="name"
+            placeholder="Vennligst skriv inn ditt navn"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
-        {/* Contact Form */}
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Send Us a Message
-          </h2>
-          <form action="#" method="POST" className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-gray-700 font-medium">
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                className="w-full p-3 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-gray-700 font-medium">
-                Your Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="w-full p-3 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-gray-700 font-medium">
-                Your Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                className="w-full p-3 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
-                rows={5}
-                placeholder="Write your message"
-                required
-              ></textarea>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition duration-300"
-            >
-              Send Message
-            </button>
-          </form>
+        <div className="flex flex-col">
+          <label htmlFor="email" className="font-bold">
+            E-post:
+          </label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Vennligst skriv inn e-postadressen"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-      </div>
+
+        <label htmlFor="message" className="font-bold">
+          Melding:
+        </label>
+        <textarea
+          id="message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        ></textarea>
+
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition mt-4"
+        >
+          Send inn
+        </button>
+      </form>
     </div>
   );
 };

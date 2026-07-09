@@ -6,7 +6,6 @@ import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
 
-// Type for location.state
 interface ShopState {
   selectedCategory?: string | null;
 }
@@ -28,17 +27,9 @@ const Shop: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products || []);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">(
-    "price-asc"
-  );
+  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">("price-asc");
   const [animations, setAnimations] = useState<Array<{ id: string; productId: string }>>([]);
 
-  /**
-   * Sett valgt kategori:
-   * 1. Fra URL (/shop/:category)
-   * 2. Fra location.state (breadcrumb / navigasjon)
-   * 3. Ellers: null = All categories
-   */
   useEffect(() => {
     if (category) {
       setSelectedCategory(category);
@@ -49,84 +40,64 @@ const Shop: React.FC = () => {
     }
   }, [category, state?.selectedCategory, setSelectedCategory]);
 
-  /**
-   * Filtrering + sortering
-   */
   useEffect(() => {
     let result = [...originalProducts];
 
-    // Kategori (bruk mainCategory når tilgjengelig)
     if (selectedCategory) {
       result = result.filter(
         (product) => (product.mainCategory || product.category) === selectedCategory
       );
     }
 
-    // Pris
     result = result.filter(
       (product) => product.price >= minPrice && product.price <= maxPrice
     );
 
-    // Sortering
     result.sort((a, b) =>
       sortOrder === "price-asc" ? a.price - b.price : b.price - a.price
     );
 
     setFilteredProducts(result);
     setProducts(result);
-  }, [
-    selectedCategory,
-    minPrice,
-    maxPrice,
-    sortOrder,
-    originalProducts,
-    setProducts,
-  ]);
+  }, [selectedCategory, minPrice, maxPrice, sortOrder, originalProducts, setProducts]);
 
-  // Sidebar handlers
-  const handleCategoryChange = (category: string | null) =>
-    setSelectedCategory(category);
-
+  const handleCategoryChange = (category: string | null) => setSelectedCategory(category);
   const handlePriceFilterChange = (min: number, max: number) => {
     setMinPrice(min);
     setMaxPrice(max);
   };
-
-  const handleSortChange = (order: "price-asc" | "price-desc") =>
-    setSortOrder(order);
+  const handleSortChange = (order: "price-asc" | "price-desc") => setSortOrder(order);
 
   const handleAddToCart = (product: Product, quantity: number) => {
     addToCart(product, quantity);
     const animationId = `${product.id}-${Date.now()}`;
     setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
 
-    // Fjern animasjon etter 1.5 sekunder
     setTimeout(() => {
       setAnimations((prev) => prev.filter((anim) => anim.id !== animationId));
     }, 1500);
   };
 
   return (
-    <div className="flex flex-row gap-6 items-start">
-      {/* Sidebar */}
+    // Endret til flex-col på mobil, flex-row på md og oppover
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start max-w-7xl mx-auto w-full px-4">
+      {/* Sidebar / Filtermeny */}
       <Sidebar
-  selectedCategory={selectedCategory}
-  onCategoryChange={handleCategoryChange}
-  onPriceFilterChange={handlePriceFilterChange}
-  onSortChange={handleSortChange}
-/>
-
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+        onPriceFilterChange={handlePriceFilterChange}
+        onSortChange={handleSortChange}
+      />
 
       {/* Produkter */}
-      <main className="flex-1 p-6 lg:p-8 overflow-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
+      <main className="flex-1 w-full py-4 md:py-8 overflow-auto">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 md:mb-8 text-center md:text-left">
           Shop
         </h1>
 
         {filteredProducts.length === 0 ? (
-          <div className="text-gray-700 text-center">No products available</div>
+          <div className="text-gray-700 text-center py-12">No products available</div>
         ) : (
-          // Group products by categories: prefer primary categories, then any others
           (() => {
             const primary = ["accessories", "clothing", "home"];
             const others = Array.from(
@@ -139,7 +110,7 @@ const Shop: React.FC = () => {
             const categoriesToShow = [...primary, ...others];
 
             return (
-              <div className="space-y-8">
+              <div className="space-y-10">
                 {categoriesToShow.map((cat) => {
                   const items = filteredProducts.filter(
                     (p) => (p.mainCategory || p.category) === cat
@@ -147,45 +118,48 @@ const Shop: React.FC = () => {
                   if (items.length === 0) return null;
                   return (
                     <section key={cat}>
-                      <h2 className="text-2xl font-semibold mb-4 capitalize">{getCategoryDisplayName(cat)}</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      <h2 className="text-xl md:text-2xl font-semibold mb-4 capitalize border-b pb-2 text-gray-800">
+                        {getCategoryDisplayName(cat)}
+                      </h2>
+                      {/* Grid tilpasset mobil (2 kolonner) og opp til desktop (4-5 kolonner) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                         {items.map((product) => (
                           <div
                             key={product.id}
-                            className="p-2 bg-white rounded shadow hover:shadow-lg transition flex flex-col h-full min-h-72"
+                            className="p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col h-full min-h-[280px]"
                           >
                             <Link
                               to={`/product/${product.id}`}
                               state={{ fromCategory: selectedCategory }}
-                              className="block"
+                              className="block flex-1"
                             >
                               <img
                                 src={product.imageUrl || "/fallback.jpg"}
                                 alt={product.name}
-                                className="w-full aspect-square object-cover mb-2 rounded"
+                                className="w-full aspect-square object-cover mb-2 rounded-md"
                               />
-                              <h3 className="text-xs font-semibold text-gray-800 mb-2">
+                              <h3 className="text-xs md:text-sm font-medium text-gray-800 line-clamp-2 mb-1">
                                 {product.name}
                               </h3>
                             </Link>
 
-                            <div className="mt-auto flex items-center justify-between gap-1">
-                              <p className="text-xs text-gray-700">
+                            <div className="mt-2 flex items-center justify-between gap-1 pt-2 border-t border-gray-50">
+                              <p className="text-xs md:text-sm font-bold text-gray-900">
                                 ${product.price}
                               </p>
 
                               <button
                                 onClick={() => handleAddToCart(product, 1)}
-                                className="relative bg-white text-black border border-black p-1 rounded hover:bg-gray-100 transition flex items-center justify-center"
+                                className="relative bg-black text-white p-2 rounded-md hover:bg-gray-800 transition flex items-center justify-center"
                                 title="Add to Cart"
                               >
-                                <FaShoppingCart size={14} />
+                                <FaShoppingCart size={13} />
                                 {animations
                                   .filter((anim) => anim.productId === product.id)
                                   .map((anim) => (
                                     <div
                                       key={anim.id}
-                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded font-bold text-lg"
+                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded font-bold text-sm"
                                     >
                                       1
                                     </div>
