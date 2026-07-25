@@ -1,41 +1,75 @@
-// Checkout.tsx
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
 import { CartItem } from "../types/types";
 import { useStore } from "../store/store";
-import { BsTrash } from "react-icons/bs"; // Søppelbøtte ikon
+import { BsTrash } from "react-icons/bs";
 
 type CheckoutProps = {
   cart: CartItem[];
-  removeFromCart: (id: string) => void;
 };
 
-const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
+const Checkout = ({ cart }: CheckoutProps) => {
   const navigate = useNavigate();
-  const { setCart } = useStore();
   const location = useLocation();
+  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  const { removeFromCartWithUser, clearCartWithUser } = useStore(); // Henter databasefunksjoner
+
   const { product, quantity } = location.state || {};
   const isSingleProductCheckout = Boolean(product);
 
-  // Velg hvilke varer som skal vises i checkout
   const checkoutItems = isSingleProductCheckout
     ? [{ ...product, quantity }]
     : cart;
 
-  // Tøm cart og gå til bekreftelse
-  const handlePlaceOrder = () => {
-    setCart([]);
-    navigate("/order-confirmation");
-  };
-
-  const handleRemoveItem = (id: string) => {
-    removeFromCart(id);
-  };
-
-  // Totalbeløp
   const totalAmount = checkoutItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  // Sender bestillingen til MongoDB og tømmer kurven
+  const handlePlaceOrder = async () => {
+    if (!userId) {
+      alert("Du må være logget inn for å fullføre bestillingen.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          items: checkoutItems.map(item => ({
+            productId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          totalAmount: Number(totalAmount.toFixed(2)),
+        }),
+      });
+
+      if (!response.ok) throw new Error("Kunne ikke lagre ordren");
+
+      console.log("✅ Ordre lagret i MongoDB");
+      
+      // Tømmer handlekurven i både lokalt minne og i MongoDB-databasen
+      if (!isSingleProductCheckout) {
+        clearCartWithUser(userId);
+      }
+      
+      navigate("/order-confirmation");
+    } catch (error) {
+      console.error("❌ Feil ved oppretting av ordre:", error);
+      alert("Noe gikk galt under lagring av bestillingen din. Prøv igjen.");
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    removeFromCartWithUser(id, userId);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -61,7 +95,6 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
                 key={item.id}
                 className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border-b pb-4"
               >
-                {/* Bilde */}
                 <Link to={`/product/${item.id}`} state={{ fromCheckout: true }}>
                   <img
                     src={item.imageUrl || "/images/default.png"}
@@ -70,7 +103,6 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
                   />
                 </Link>
 
-                {/* Produktinfo */}
                 <div className="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>
                     <Link to={`/product/${item.id}`} state={{ fromCheckout: true }}>
@@ -86,7 +118,6 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
                     </p>
                   </div>
 
-                  {/* Søppelbøtte ikon */}
                   {!isSingleProductCheckout && (
                     <button
                       onClick={() => handleRemoveItem(item.id)}
@@ -101,13 +132,11 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
             ))}
           </ul>
 
-          {/* Total */}
           <div className="flex justify-between text-xl font-bold mt-6 text-gray-800">
             <span>Total:</span>
             <span>${totalAmount.toFixed(2)}</span>
           </div>
 
-          {/* Place Order */}
           <div className="flex justify-center mt-6">
             <button
               onClick={handlePlaceOrder}

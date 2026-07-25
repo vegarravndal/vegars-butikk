@@ -12,14 +12,18 @@ const Contact: React.FC = () => {
     const data = { name, email, message };
 
     axios
-      .post("/api/contact", data)
+      .post("http://localhost:5000/api/contact", data) // Oppdatert med fullstendig adresse
       .then((response) => {
-        console.log(response.data);
-        // Formularen ble sendt og behandlingen var vellykket
+        console.log("✅ Melding sendt:", response.data);
+        // Nullstiller feltene etter vellykket innsending
+        setName("");
+        setEmail("");
+        setMessage("");
+        alert("Takk for din melding! Vi svarer så fort som mulig.");
       })
       .catch((error) => {
-        console.error(error);
-        // Feil ved sending av formularen
+        console.error("❌ Feil ved sending av kontaktskjema:", error);
+        alert("Noe gikk galt. Vennligst prøv igjen senere.");
       });
   };
 

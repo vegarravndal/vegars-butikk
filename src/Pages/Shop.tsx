@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
+import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
@@ -11,13 +12,14 @@ interface ShopState {
 }
 
 const Shop: React.FC = () => {
+  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
   const {
     selectedCategory,
     setSelectedCategory,
     setProducts,
     originalProducts,
     products,
-    addToCart,
+    addToCartWithUser, // Henter den nye databasetilkoblede funksjonen
   } = useStore();
 
   const { category } = useParams();
@@ -69,7 +71,7 @@ const Shop: React.FC = () => {
   const handleSortChange = (order: "price-asc" | "price-desc") => setSortOrder(order);
 
   const handleAddToCart = (product: Product, quantity: number) => {
-    addToCart(product, quantity);
+    addToCartWithUser(product, quantity, userId); // Sender med produkt, antall og Clerk-ID
     const animationId = `${product.id}-${Date.now()}`;
     setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
 
@@ -79,9 +81,7 @@ const Shop: React.FC = () => {
   };
 
   return (
-    // Endret til flex-col på mobil, flex-row på md og oppover
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start max-w-7xl mx-auto w-full px-4">
-      {/* Sidebar / Filtermeny */}
       <Sidebar
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryChange}
@@ -89,7 +89,6 @@ const Shop: React.FC = () => {
         onSortChange={handleSortChange}
       />
 
-      {/* Produkter */}
       <main className="flex-1 w-full py-4 md:py-8 overflow-auto">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 md:mb-8 text-center md:text-left">
           Shop
@@ -121,7 +120,6 @@ const Shop: React.FC = () => {
                       <h2 className="text-xl md:text-2xl font-semibold mb-4 capitalize border-b pb-2 text-gray-800">
                         {getCategoryDisplayName(cat)}
                       </h2>
-                      {/* Grid tilpasset mobil (2 kolonner) og opp til desktop (4-5 kolonner) */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                         {items.map((product) => (
                           <div

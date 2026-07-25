@@ -31,7 +31,6 @@ function App() {
     cart,
     originalProducts,
     removeFromCart,
-    clearCart,
     setCart,
     setProducts,
   } = useStore();
@@ -51,28 +50,19 @@ function App() {
     }
   }, [originalProducts, setProducts]);
 
-  // Hent cart fra backend
+  // Hent lagret handlevogn fra MongoDB med en gang brukeren logger inn
   useEffect(() => {
     if (user?.id) {
       fetch(`http://localhost:5000/api/cart/${user.id}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.items) setCart(data.items);
+          if (data && data.items) {
+            setCart(data.items);
+          }
         })
-        .catch((err) => console.error(err));
+        .catch((err) => console.error("Kunne ikke hente handlevogn fra MongoDB:", err));
     }
   }, [user?.id, setCart]);
-
-  // Lagre cart til backend
-  useEffect(() => {
-    if (user?.id) {
-      fetch("http://localhost:5000/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, items: cart }),
-      }).catch((err) => console.error(err));
-    }
-  }, [cart, user?.id]);
 
   // Lukk cart når man klikker utenfor
   useEffect(() => {
@@ -158,11 +148,9 @@ function App() {
         {/* Footer alltid nederst */}
         <Footer />
 
-        {/* Cart sidebar */}
+        {/* Cart sidebar - her er de overflødige propsene fjernet */}
         <Cart
           cart={cart}
-          removeFromCart={removeFromCart}
-          clearCart={clearCart}
           isCartOpen={isCartOpen}
           closeCart={closeCart}
         />

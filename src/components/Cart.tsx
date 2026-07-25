@@ -2,18 +2,22 @@ import { useEffect, useRef } from "react";
 import { CartItem } from "../types/types";
 import { useNavigate } from "react-router-dom";
 import { BsTrash } from "react-icons/bs";
+import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
+import { useStore } from "../store/store"; // Importerer Zustand-storen
 
 type CartProps = {
   cart: CartItem[];
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
   isCartOpen: boolean;
   closeCart: () => void;
 };
 
-const Cart = ({ cart, removeFromCart, clearCart, isCartOpen, closeCart }: CartProps) => {
+const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
   const navigate = useNavigate();
   const cartRef = useRef<HTMLDivElement>(null);
+  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  
+  // Henter de nye databasetilkoblede funksjonene direkte fra storen
+  const { removeFromCartWithUser, clearCartWithUser } = useStore();
 
   const totalAmount = cart.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -40,7 +44,7 @@ const Cart = ({ cart, removeFromCart, clearCart, isCartOpen, closeCart }: CartPr
     <div
       ref={cartRef}
       className={`fixed top-0 right-0 h-full z-50 w-96 transform transition-transform duration-300
-        ${isCartOpen ? "translate-x-0" : "translate-x-full"}`} // <- korrekt bruk av isCartOpen
+        ${isCartOpen ? "translate-x-0" : "translate-x-full"}`}
     >
       <div className="bg-white shadow-lg max-h-full overflow-y-auto p-6 flex flex-col h-full">
         {/* Header */}
@@ -78,7 +82,7 @@ const Cart = ({ cart, removeFromCart, clearCart, isCartOpen, closeCart }: CartPr
                   </div>
                 </div>
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCartWithUser(item.id, userId)} // Sender med userId ved sletting
                   className="text-red-500 hover:text-red-700 text-xl"
                 >
                   <BsTrash />
@@ -103,7 +107,7 @@ const Cart = ({ cart, removeFromCart, clearCart, isCartOpen, closeCart }: CartPr
           </button>
           {cart.length > 0 && (
             <button
-              onClick={clearCart}
+              onClick={() => clearCartWithUser(userId)} // Sender med userId ved tømming
               className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
             >
               Fjern alle varer

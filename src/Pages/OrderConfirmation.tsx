@@ -1,18 +1,15 @@
-import { useStore } from "../store/store";
 import { useNavigate } from "react-router-dom";
 
 export function OrderConfirmation() {
-  const { setCart } = useStore();
   const navigate = useNavigate();
 
   const handleContinueShopping = () => {
-    setCart([]);
+    // Kurven ble allerede tømt og synkronisert til MongoDB i Checkout-steget
     navigate("/shop");
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* Samme som Checkout */}
       <h1 className="text-4xl font-bold mb-8 text-gray-800 text-center">
         Order Confirmed!
       </h1>

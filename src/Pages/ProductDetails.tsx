@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
 import { useStore } from "../store/store";
 import { Product } from "../types/types";
 
@@ -7,7 +8,10 @@ const ProductDetails: React.FC = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { originalProducts, addToCart } = useStore();
+  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  
+  // Henter den nye funksjonen vår fra storen
+  const { originalProducts, addToCartWithUser } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -64,14 +68,14 @@ const ProductDetails: React.FC = () => {
               className="w-20 p-2 border rounded"
             />
             <button
-              onClick={() => addToCart(product, quantity)}
+              onClick={() => addToCartWithUser(product, quantity, userId)} // Bruker den nye funksjonen med userId
               className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
             >
               Add to Cart
             </button>
             <button
               onClick={() => {
-                addToCart(product, quantity);
+                addToCartWithUser(product, quantity, userId); // Bruker den nye funksjonen med userId
                 navigate("/checkout");
               }}
               className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
