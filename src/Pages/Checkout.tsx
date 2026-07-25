@@ -4,11 +4,14 @@ import { CartItem } from "../types/types";
 import { useStore } from "../store/store";
 import { BsTrash } from "react-icons/bs";
 
+// Updated to include the removeFromCart prop definition
 type CheckoutProps = {
   cart: CartItem[];
+  removeFromCart: (id: string) => void;
 };
 
-const Checkout = ({ cart }: CheckoutProps) => {
+// Added removeFromCart to the destructured arguments
+const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
@@ -68,7 +71,9 @@ const Checkout = ({ cart }: CheckoutProps) => {
   };
 
   const handleRemoveItem = (id: string) => {
+    // Calls both the database update and the app-state prop function
     removeFromCartWithUser(id, userId);
+    removeFromCart(id);
   };
 
   return (
