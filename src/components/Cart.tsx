@@ -15,13 +15,13 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
   const navigate = useNavigate();
   const cartRef = useRef<HTMLDivElement>(null);
   const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
-  
+
   // Henter de nye databasetilkoblede funksjonene direkte fra storen
   const { removeFromCartWithUser, clearCartWithUser } = useStore();
 
   const totalAmount = cart.reduce(
     (total, item) => total + item.price * item.quantity,
-    0
+    0,
   );
 
   const handleCheckoutClick = () => {
@@ -29,20 +29,29 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
     navigate("/checkout");
   };
 
-  // Click outside to close
+  // Click outside to close (uten at det krasjer med handlevogn-knappen i navbaren)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (cartRef.current && !cartRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement;
+      const clickedInsideCart =
+        cartRef.current && cartRef.current.contains(target);
+      const clickedCartButton = target.closest("[data-cart-btn]");
+
+      if (isCartOpen && !clickedInsideCart && !clickedCartButton) {
         closeCart();
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+
+    if (isCartOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [closeCart]);
+  }, [isCartOpen, closeCart]);
 
   return (
     <div
       ref={cartRef}
+      data-cart-sidebar="true"
       className={`fixed top-0 right-0 h-full z-50 w-96 transform transition-transform duration-300
         ${isCartOpen ? "translate-x-0" : "translate-x-full"}`}
     >

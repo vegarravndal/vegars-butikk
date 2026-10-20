@@ -3,13 +3,14 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
 import { useStore } from "../store/store";
 import { Product } from "../types/types";
+import { FaArrowLeft } from "react-icons/fa"; // For et fint tilbake-ikon
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
-  
+
   // Henter den nye funksjonen vår fra storen
   const { originalProducts, addToCartWithUser } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
@@ -43,6 +44,16 @@ const ProductDetails: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Dersom man kom fra checkout, viser vi en pen tilbake-knapp øverst */}
+      {location.state?.fromCheckout && (
+        <button
+          onClick={() => navigate("/checkout")}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-4 transition font-medium text-sm"
+        >
+          <FaArrowLeft size={14} /> Back to Checkout
+        </button>
+      )}
+
       <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
         {product.name}
       </h1>
@@ -68,28 +79,11 @@ const ProductDetails: React.FC = () => {
               className="w-20 p-2 border rounded"
             />
             <button
-              onClick={() => addToCartWithUser(product, quantity, userId)} // Bruker den nye funksjonen med userId
+              onClick={() => addToCartWithUser(product, quantity, userId)}
               className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
             >
               Add to Cart
             </button>
-            <button
-              onClick={() => {
-                addToCartWithUser(product, quantity, userId); // Bruker den nye funksjonen med userId
-                navigate("/checkout");
-              }}
-              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
-            >
-              Checkout
-            </button>
-            {location.state?.fromCheckout && (
-              <button
-                onClick={() => navigate("/checkout")}
-                className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
-              >
-                Back to Checkout
-              </button>
-            )}
           </div>
 
           {/* Review & Rating Section */}

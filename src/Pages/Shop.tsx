@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
-import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
+import { FiShoppingCart } from "react-icons/fi"; // Bruker denne konsekvent
+import { useAuth } from "@clerk/clerk-react";
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
@@ -12,14 +12,14 @@ interface ShopState {
 }
 
 const Shop: React.FC = () => {
-  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  const { userId } = useAuth();
   const {
     selectedCategory,
     setSelectedCategory,
     setProducts,
     originalProducts,
     products,
-    addToCartWithUser, // Henter den nye databasetilkoblede funksjonen
+    addToCartWithUser,
   } = useStore();
 
   const { category } = useParams();
@@ -71,7 +71,7 @@ const Shop: React.FC = () => {
   const handleSortChange = (order: "price-asc" | "price-desc") => setSortOrder(order);
 
   const handleAddToCart = (product: Product, quantity: number) => {
-    addToCartWithUser(product, quantity, userId); // Sender med produkt, antall og Clerk-ID
+    addToCartWithUser(product, quantity, userId);
     const animationId = `${product.id}-${Date.now()}`;
     setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
 
@@ -147,22 +147,22 @@ const Shop: React.FC = () => {
                               </p>
 
                               <button
-                                onClick={() => handleAddToCart(product, 1)}
-                                className="relative bg-black text-white p-2 rounded-md hover:bg-gray-800 transition flex items-center justify-center"
-                                title="Add to Cart"
-                              >
-                                <FaShoppingCart size={13} />
-                                {animations
-                                  .filter((anim) => anim.productId === product.id)
-                                  .map((anim) => (
-                                    <div
-                                      key={anim.id}
-                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded font-bold text-sm"
-                                    >
-                                      1
-                                    </div>
-                                  ))}
-                              </button>
+  onClick={() => handleAddToCart(product, 1)}
+  className="relative bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md focus:outline-none"
+  title="Add to Cart"
+>
+  <FiShoppingCart size={18} />
+  {animations
+    .filter((anim) => anim.productId === product.id)
+    .map((anim) => (
+      <div
+        key={anim.id}
+        className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded-full font-bold text-xs"
+      >
+        1
+      </div>
+    ))}
+</button>
                             </div>
                           </div>
                         ))}

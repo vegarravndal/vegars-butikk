@@ -7,9 +7,9 @@ export function Footer() {
         {/* Left Side with Logo and Paragraph */}
         <div className="flex flex-col items-start">
           <img
-            src="/images/logo.jpg"
-            alt="Logo"
-            className="h-20 w-auto mb-4"
+            src="/images/logo.svg"
+            alt="Vegars Butikk Logo"
+            className="h-16 w-auto mb-4"
           />
           <p className="text-gray-400 text-sm max-w-xs">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae

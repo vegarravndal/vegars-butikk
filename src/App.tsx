@@ -27,13 +27,8 @@ import TermsAndConditions from "./Pages/TermsAndConditions";
 import Contact from "./Pages/Contact";
 
 function App() {
-  const {
-    cart,
-    originalProducts,
-    removeFromCart,
-    setCart,
-    setProducts,
-  } = useStore();
+  const { cart, originalProducts, removeFromCart, setCart, setProducts } =
+    useStore();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -60,7 +55,9 @@ function App() {
             setCart(data.items);
           }
         })
-        .catch((err) => console.error("Kunne ikke hente handlevogn fra MongoDB:", err));
+        .catch((err) =>
+          console.error("Kunne ikke hente handlevogn fra MongoDB:", err),
+        );
     }
   }, [user?.id, setCart]);
 
@@ -87,7 +84,12 @@ function App() {
     <Router>
       <div className="min-h-screen flex flex-col">
         {/* Navbar */}
-        <Navbar cart={cart} openCart={openCart} />
+        <Navbar
+          cart={cart}
+          isCartOpen={isCartOpen}
+          openCart={openCart}
+          closeCart={closeCart}
+        />
 
         {/* Main content */}
         <main className="flex-grow">
@@ -149,11 +151,7 @@ function App() {
         <Footer />
 
         {/* Cart sidebar - her er de overflødige propsene fjernet */}
-        <Cart
-          cart={cart}
-          isCartOpen={isCartOpen}
-          closeCart={closeCart}
-        />
+        <Cart cart={cart} isCartOpen={isCartOpen} closeCart={closeCart} />
       </div>
     </Router>
   );
