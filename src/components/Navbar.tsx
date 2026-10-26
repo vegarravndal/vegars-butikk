@@ -59,12 +59,12 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
     <nav className="bg-white shadow-md relative z-50">
       <div className="max-w-6xl mx-auto flex justify-between items-center p-4 text-gray-950">
         {/* Logo + Desktop nav */}
-        <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center">
+        <div className="flex items-center min-w-0 flex-1 md:flex-none space-x-6">
+          <Link to="/" className="flex items-center shrink-0">
             <img
               src="/images/logo.svg"
               alt="Vegars Butikk Logo"
-              className="h-16 w-auto"
+              className="h-12 w-auto md:h-16"
             />
           </Link>
 
@@ -91,13 +91,13 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
         </div>
 
         {/* Cart + Auth */}
-        <div className="flex items-center space-x-4 relative">
+        <div className="flex items-center space-x-3 md:space-x-4 relative shrink-0">
           <button
             data-cart-btn="true"
             onClick={handleCartClick}
             className="hover:text-blue-500 flex items-center relative focus:outline-none p-1"
           >
-            <FiShoppingCart className="text-gray-950 text-3xl hover:text-blue-500" />
+            <FiShoppingCart className="text-gray-950 text-2xl md:text-3xl hover:text-blue-500" />
             {totalQuantity > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center pointer-events-none">
                 {totalQuantity}
@@ -107,7 +107,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
 
           <SignedOut>
             <SignInButton mode="redirect">
-              <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-4xl hover:bg-blue-500 hover:text-white transition">
+              <button className="whitespace-nowrap px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition font-medium">
                 Logg inn
               </button>
             </SignInButton>
@@ -119,7 +119,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
         </div>
 
         {/* Mobile hamburger */}
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center ml-3 shrink-0">
           <button
             onClick={toggleMobileMenu}
             className="text-gray-950 focus:outline-none"

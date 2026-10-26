@@ -9,7 +9,7 @@ export function Breadcrumb() {
 
   const paths = location.pathname.split("/").filter(Boolean);
 
-  // 👉 ProductDetails case
+  // 👉 ProductDetails-spesifikk breadcrumb (Viser ekte navn og kategori)
   if (paths[0] === "product" && paths[1]) {
     const productId = paths[1];
 
@@ -18,31 +18,46 @@ export function Breadcrumb() {
     );
 
     const category = product?.mainCategory || product?.category || null;
+    const productName = product?.name || productId;
 
     return (
-      <div className="px-4 py-2">
+      <div className="max-w-6xl mx-auto px-6 py-3">
         <nav aria-label="Breadcrumb">
-          <ol className="flex text-gray-700 space-x-2">
+          <ol className="flex items-center text-sm text-gray-600 space-x-1">
             <li>
-              <Link to="/" className="text-blue-500 hover:text-blue-700">
+              <Link to="/" className="text-blue-600 hover:underline">
                 Home
               </Link>
             </li>
 
             <li className="flex items-center">
-              <span className="mx-2">/</span>
+              <span className="mx-2 text-gray-400">/</span>
               <Link
                 to="/shop"
-                state={{ selectedCategory: category }}
-                className="text-blue-500 hover:text-blue-700"
+                className="text-blue-600 hover:underline"
               >
-                Product
+                Shop
               </Link>
             </li>
 
-            <li className="flex items-center">
-              <span className="mx-2">/</span>
-              <span className="text-gray-500">{productId}</span>
+            {category && (
+              <li className="flex items-center">
+                <span className="mx-2 text-gray-400">/</span>
+                <Link
+                  to="/shop"
+                  state={{ selectedCategory: category }}
+                  className="text-blue-600 hover:underline capitalize"
+                >
+                  {category.toLowerCase()}
+                </Link>
+              </li>
+            )}
+
+            <li className="flex items-center min-w-0">
+              <span className="mx-2 text-gray-400">/</span>
+              <span className="text-gray-500 truncate font-medium">
+                {productName}
+              </span>
             </li>
           </ol>
         </nav>
@@ -50,29 +65,34 @@ export function Breadcrumb() {
     );
   }
 
-  // 👉 Standard breadcrumb
+  // 👉 Standard breadcrumb for andre sider
   return (
-    <div className="px-4 py-2">
+    <div className="max-w-6xl mx-auto px-6 py-3">
       <nav aria-label="Breadcrumb">
-        <ol className="flex text-gray-700 space-x-2">
+        <ol className="flex items-center text-sm text-gray-600 space-x-1">
           <li>
-            <Link to="/" className="text-blue-500 hover:text-blue-700">
+            <Link to="/" className="text-blue-600 hover:underline">
               Home
-            </Link>
+              </Link>
           </li>
 
           {paths.map((path, index) => {
             const to = `/${paths.slice(0, index + 1).join("/")}`;
             const isLast = index === paths.length - 1;
 
+            // Gjør rå stier som "privacy-policy" om til "Privacy Policy"
+            const formattedPath = path
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase());
+
             return (
               <li key={to} className="flex items-center">
-                <span className="mx-2">/</span>
+                <span className="mx-2 text-gray-400">/</span>
                 {isLast ? (
-                  <span className="text-gray-500">{path}</span>
+                  <span className="text-gray-500 font-medium">{formattedPath}</span>
                 ) : (
-                  <Link to={to} className="text-blue-500 hover:text-blue-700">
-                    {path}
+                  <Link to={to} className="text-blue-600 hover:underline">
+                    {formattedPath}
                   </Link>
                 )}
               </li>

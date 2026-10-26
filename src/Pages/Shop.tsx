@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { FiShoppingCart } from "react-icons/fi"; // Bruker denne konsekvent
+import { FiShoppingCart } from "react-icons/fi"; 
 import { useAuth } from "@clerk/clerk-react";
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
+import { FaCheckCircle } from "react-icons/fa"; // Lagt til for suksessikon
 
 interface ShopState {
   selectedCategory?: string | null;
@@ -31,6 +32,9 @@ const Shop: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">("price-asc");
   const [animations, setAnimations] = useState<Array<{ id: string; productId: string }>>([]);
+
+  // Ny state for å holde styr på aktiv popup-melding
+  const [activeToast, setActiveToast] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     if (category) {
@@ -72,16 +76,41 @@ const Shop: React.FC = () => {
 
   const handleAddToCart = (product: Product, quantity: number) => {
     addToCartWithUser(product, quantity, userId);
-    const animationId = `${product.id}-${Date.now()}`;
+    
+    const timestamp = Date.now();
+    const animationId = `${product.id}-${timestamp}`;
     setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
 
+    // Trigger toast-varsel med produktnavn
+    setActiveToast({ id: timestamp, name: product.name });
+
+    // Skjul animasjon etter 1.5 sekunder
     setTimeout(() => {
       setAnimations((prev) => prev.filter((anim) => anim.id !== animationId));
     }, 1500);
+
+    // Skjul toast automatisk etter 3 sekunder
+    setTimeout(() => {
+      setActiveToast((current) => (current?.id === timestamp ? null : current));
+    }, 3000);
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start max-w-7xl mx-auto w-full px-4">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start max-w-7xl mx-auto w-full px-4 relative">
+      {/* Toast Notification for mobil og desktop */}
+      <div
+        className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 w-[90%] sm:w-auto transition-all duration-300 font-medium ${
+          activeToast 
+            ? "opacity-100 translate-y-0 visible" 
+            : "opacity-0 translate-y-4 invisible"
+        }`}
+      >
+        <FaCheckCircle className="text-green-400 text-xl shrink-0" />
+        <span className="text-sm truncate">
+          {activeToast?.name} lagt til i handlekurven!
+        </span>
+      </div>
+
       <Sidebar
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryChange}
@@ -147,22 +176,22 @@ const Shop: React.FC = () => {
                               </p>
 
                               <button
-  onClick={() => handleAddToCart(product, 1)}
-  className="relative bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md focus:outline-none"
-  title="Add to Cart"
->
-  <FiShoppingCart size={18} />
-  {animations
-    .filter((anim) => anim.productId === product.id)
-    .map((anim) => (
-      <div
-        key={anim.id}
-        className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded-full font-bold text-xs"
-      >
-        1
-      </div>
-    ))}
-</button>
+                                onClick={() => handleAddToCart(product, 1)}
+                                className="relative bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md focus:outline-none"
+                                title="Add to Cart"
+                              >
+                                <FiShoppingCart size={18} />
+                                {animations
+                                  .filter((anim) => anim.productId === product.id)
+                                  .map((anim) => (
+                                    <div
+                                      key={anim.id}
+                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded-full font-bold text-xs"
+                                    >
+                                      1
+                                    </div>
+                                  ))}
+                              </button>
                             </div>
                           </div>
                         ))}

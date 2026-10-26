@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import Breadcrumb from "./components/Breadcrumb";
 import Cart from "./components/Cart";
 import HeroBanner from "./components/HeroBanner";
+import ScrollToTop from "./components/ScrollToTop"; // 1. Importer ScrollToTop
 
 // Sider
 import Home from "./Pages/Home";
@@ -82,6 +83,8 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop /> {/* 2. Legg den inn her rett under Router for global effekt */}
+      
       <div className="min-h-screen flex flex-col">
         {/* Navbar */}
         <Navbar
@@ -150,7 +153,7 @@ function App() {
         {/* Footer alltid nederst */}
         <Footer />
 
-        {/* Cart sidebar - her er de overflødige propsene fjernet */}
+        {/* Cart sidebar */}
         <Cart cart={cart} isCartOpen={isCartOpen} closeCart={closeCart} />
       </div>
     </Router>
