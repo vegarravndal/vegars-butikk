@@ -4,14 +4,14 @@ import { CartItem } from "../types/types";
 import { useStore } from "../store/store";
 import { BsTrash } from "react-icons/bs";
 
-// Updated to include the removeFromCart prop definition
+// Lagt til clearCart i prop-definisjonen om du har en lokal state-funksjon i App.tsx
 type CheckoutProps = {
   cart: CartItem[];
   removeFromCart: (id: string) => void;
+  clearCart?: () => void; 
 };
 
-// Added removeFromCart to the destructured arguments
-const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
+const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
@@ -60,7 +60,8 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
       
       // Tømmer handlekurven i både lokalt minne og i MongoDB-databasen
       if (!isSingleProductCheckout) {
-        clearCartWithUser(userId);
+        await clearCartWithUser(userId);
+        if (clearCart) clearCart();
       }
       
       navigate("/order-confirmation");
@@ -71,9 +72,21 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
   };
 
   const handleRemoveItem = (id: string) => {
-    // Calls both the database update and the app-state prop function
+    // Kaller både databaseoppdateringen og app-state prop-funksjonen
     removeFromCartWithUser(id, userId);
     removeFromCart(id);
+  };
+
+  const handleClearFullCart = async () => {
+    if (window.confirm("Er du sikker på at du vil tømme hele handlekurven?")) {
+      try {
+        await clearCartWithUser(userId || ""); // Sletter i MongoDB via store
+        if (clearCart) clearCart(); // Sletter i lokal App.tsx state hvis den finnes
+        console.log("✅ Handlekurv tømt");
+      } catch (error) {
+        console.error("❌ Kunne ikke tømme kurv:", error);
+      }
+    }
   };
 
   return (
@@ -142,10 +155,20 @@ const Checkout = ({ cart, removeFromCart }: CheckoutProps) => {
             <span>${totalAmount.toFixed(2)}</span>
           </div>
 
-          <div className="flex justify-center mt-6">
+          {/* Knappeknapper for handling nederst */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+            {!isSingleProductCheckout && (
+              <button
+                onClick={handleClearFullCart}
+                className="w-full sm:w-auto px-6 py-3 border border-red-200 text-red-600 rounded-lg text-lg font-medium hover:bg-red-50 transition focus:outline-none focus:ring-2 focus:ring-red-200"
+              >
+                Tøm handlekurv
+              </button>
+            )}
+
             <button
               onClick={handlePlaceOrder}
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full sm:w-auto bg-blue-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm"
             >
               Place Order
             </button>

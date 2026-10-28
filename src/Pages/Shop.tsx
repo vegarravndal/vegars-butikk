@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { FiShoppingCart } from "react-icons/fi"; 
+import { FiShoppingCart } from "react-icons/fi";
 import { useAuth } from "@clerk/clerk-react";
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
@@ -27,14 +27,23 @@ const Shop: React.FC = () => {
   const location = useLocation();
   const state = location.state as ShopState | null;
 
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products || []);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(
+    products || [],
+  );
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">("price-asc");
-  const [animations, setAnimations] = useState<Array<{ id: string; productId: string }>>([]);
+  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">(
+    "price-asc",
+  );
+  const [animations, setAnimations] = useState<
+    Array<{ id: string; productId: string }>
+  >([]);
 
   // Ny state for å holde styr på aktiv popup-melding
-  const [activeToast, setActiveToast] = useState<{ id: number; name: string } | null>(null);
+  const [activeToast, setActiveToast] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     if (category) {
@@ -51,35 +60,48 @@ const Shop: React.FC = () => {
 
     if (selectedCategory) {
       result = result.filter(
-        (product) => (product.mainCategory || product.category) === selectedCategory
+        (product) =>
+          (product.mainCategory || product.category) === selectedCategory,
       );
     }
 
     result = result.filter(
-      (product) => product.price >= minPrice && product.price <= maxPrice
+      (product) => product.price >= minPrice && product.price <= maxPrice,
     );
 
     result.sort((a, b) =>
-      sortOrder === "price-asc" ? a.price - b.price : b.price - a.price
+      sortOrder === "price-asc" ? a.price - b.price : b.price - a.price,
     );
 
     setFilteredProducts(result);
     setProducts(result);
-  }, [selectedCategory, minPrice, maxPrice, sortOrder, originalProducts, setProducts]);
+  }, [
+    selectedCategory,
+    minPrice,
+    maxPrice,
+    sortOrder,
+    originalProducts,
+    setProducts,
+  ]);
 
-  const handleCategoryChange = (category: string | null) => setSelectedCategory(category);
+  const handleCategoryChange = (category: string | null) =>
+    setSelectedCategory(category);
   const handlePriceFilterChange = (min: number, max: number) => {
     setMinPrice(min);
     setMaxPrice(max);
   };
-  const handleSortChange = (order: "price-asc" | "price-desc") => setSortOrder(order);
+  const handleSortChange = (order: "price-asc" | "price-desc") =>
+    setSortOrder(order);
 
   const handleAddToCart = (product: Product, quantity: number) => {
     addToCartWithUser(product, quantity, userId);
-    
+
     const timestamp = Date.now();
     const animationId = `${product.id}-${timestamp}`;
-    setAnimations((prev) => [...prev, { id: animationId, productId: product.id }]);
+    setAnimations((prev) => [
+      ...prev,
+      { id: animationId, productId: product.id },
+    ]);
 
     // Trigger toast-varsel med produktnavn
     setActiveToast({ id: timestamp, name: product.name });
@@ -100,8 +122,8 @@ const Shop: React.FC = () => {
       {/* Toast Notification for mobil og desktop */}
       <div
         className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 w-[90%] sm:w-auto transition-all duration-300 font-medium ${
-          activeToast 
-            ? "opacity-100 translate-y-0 visible" 
+          activeToast
+            ? "opacity-100 translate-y-0 visible"
             : "opacity-0 translate-y-4 invisible"
         }`}
       >
@@ -124,7 +146,9 @@ const Shop: React.FC = () => {
         </h1>
 
         {filteredProducts.length === 0 ? (
-          <div className="text-gray-700 text-center py-12">No products available</div>
+          <div className="text-gray-700 text-center py-12">
+            No products available
+          </div>
         ) : (
           (() => {
             const primary = ["accessories", "clothing", "home"];
@@ -132,8 +156,8 @@ const Shop: React.FC = () => {
               new Set(
                 filteredProducts
                   .map((p) => p.mainCategory || p.category)
-                  .filter((c) => !primary.includes(c))
-              )
+                  .filter((c) => !primary.includes(c)),
+              ),
             );
             const categoriesToShow = [...primary, ...others];
 
@@ -141,7 +165,7 @@ const Shop: React.FC = () => {
               <div className="space-y-10">
                 {categoriesToShow.map((cat) => {
                   const items = filteredProducts.filter(
-                    (p) => (p.mainCategory || p.category) === cat
+                    (p) => (p.mainCategory || p.category) === cat,
                   );
                   if (items.length === 0) return null;
                   return (
@@ -178,15 +202,18 @@ const Shop: React.FC = () => {
                               <button
                                 onClick={() => handleAddToCart(product, 1)}
                                 className="relative bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md focus:outline-none"
-                                title="Add to Cart"
+                                title="Legg i handlekurv"
                               >
                                 <FiShoppingCart size={18} />
+
                                 {animations
-                                  .filter((anim) => anim.productId === product.id)
+                                  .filter(
+                                    (anim) => anim.productId === product.id,
+                                  )
                                   .map((anim) => (
                                     <div
                                       key={anim.id}
-                                      className="absolute inset-0 flex items-center justify-center animate-cart-pulse text-white bg-red-500 rounded-full font-bold text-xs"
+                                      className="absolute -top-1 -right-1 flex items-center justify-center h-5 w-5 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-cart-pulse"
                                     >
                                       1
                                     </div>

@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useStore } from "../store/store";
+import { getCategoryDisplayName } from "../utils/categoryNames";
 
 export function Breadcrumb() {
   const location = useLocation();
@@ -9,16 +10,20 @@ export function Breadcrumb() {
 
   const paths = location.pathname.split("/").filter(Boolean);
 
-  // 👉 ProductDetails-spesifikk breadcrumb (Viser ekte navn og kategori)
-  if (paths[0] === "product" && paths[1]) {
-    const productId = paths[1];
+  // 👉 Sjekk om vi FAKTISK er inne på en produktdetaljside
+  const isProductPage = paths[0] === "product" && paths[1];
+  const matchingProduct = isProductPage
+    ? originalProducts.find((p) => String(p.id) === String(paths[1]))
+    : null;
 
-    const product = originalProducts.find(
-      (p) => String(p.id) === String(productId)
-    );
-
-    const category = product?.mainCategory || product?.category || null;
-    const productName = product?.name || productId;
+  // 👉 Hvis vi er på en produkt-URL OG produktet eksisterer i databasen/storen
+  if (isProductPage && matchingProduct) {
+    const category =
+      matchingProduct.mainCategory || matchingProduct.category || null;
+    const productName = matchingProduct.name;
+    const displayCategoryName = category
+      ? getCategoryDisplayName(category)
+      : null;
 
     return (
       <div className="max-w-6xl mx-auto px-6 py-3">
@@ -32,23 +37,20 @@ export function Breadcrumb() {
 
             <li className="flex items-center">
               <span className="mx-2 text-gray-400">/</span>
-              <Link
-                to="/shop"
-                className="text-blue-600 hover:underline"
-              >
+              <Link to="/shop" className="text-blue-600 hover:underline">
                 Shop
               </Link>
             </li>
 
-            {category && (
+            {category && displayCategoryName && (
               <li className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 <Link
                   to="/shop"
                   state={{ selectedCategory: category }}
-                  className="text-blue-600 hover:underline capitalize"
+                  className="text-blue-600 hover:underline"
                 >
-                  {category.toLowerCase()}
+                  {displayCategoryName}
                 </Link>
               </li>
             )}
@@ -65,7 +67,7 @@ export function Breadcrumb() {
     );
   }
 
-  // 👉 Standard breadcrumb for andre sider
+  // 👉 Standard breadcrumb for alle andre sider (F.eks /shop, /about, /privacy-policy)
   return (
     <div className="max-w-6xl mx-auto px-6 py-3">
       <nav aria-label="Breadcrumb">
@@ -73,23 +75,31 @@ export function Breadcrumb() {
           <li>
             <Link to="/" className="text-blue-600 hover:underline">
               Home
-              </Link>
+            </Link>
           </li>
 
           {paths.map((path, index) => {
             const to = `/${paths.slice(0, index + 1).join("/")}`;
             const isLast = index === paths.length - 1;
 
-            // Gjør rå stier som "privacy-policy" om til "Privacy Policy"
-            const formattedPath = path
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase());
+            // Sjekker om stien er en rå kategori-id, og henter i så fall "Kitchen & Home" etc.
+            const displayPathName = getCategoryDisplayName(path);
+
+            // Gjør ord pene hvis det ikke er en pre-definert kategori (f.eks "privacy-policy" -> "Privacy Policy")
+            const formattedPath =
+              displayPathName === path
+                ? path
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())
+                : displayPathName;
 
             return (
               <li key={to} className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 {isLast ? (
-                  <span className="text-gray-500 font-medium">{formattedPath}</span>
+                  <span className="text-gray-500 font-medium">
+                    {formattedPath}
+                  </span>
                 ) : (
                   <Link to={to} className="text-blue-600 hover:underline">
                     {formattedPath}
