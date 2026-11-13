@@ -7,7 +7,6 @@ import {
   FaArrowLeft,
   FaStar,
   FaCheckCircle,
-  FaCreditCard,
 } from "react-icons/fa";
 
 const ProductDetails: React.FC = () => {
@@ -16,7 +15,7 @@ const ProductDetails: React.FC = () => {
   const navigate = useNavigate();
   const { userId, getToken } = useAuth();
 
-  const { originalProducts, addToCartWithUser, cart } = useStore();
+  const { originalProducts, addToCartWithUser } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -139,15 +138,6 @@ const ProductDetails: React.FC = () => {
             </div>
 
             {/* Ekstra snarvei-knapp hvis det finnes varer i kurven fra før */}
-            {cart.length > 0 && (
-              <button
-                onClick={() => navigate("/checkout")}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg transition shadow-sm flex items-center justify-center gap-2"
-              >
-                <FaCreditCard size={14} /> Gå til kassen (
-                {cart.reduce((total, item) => total + item.quantity, 0)})
-              </button>
-            )}
           </div>
 
           {/* Review & Rating Section */}

@@ -1,9 +1,12 @@
 import express from "express";
-import { getAuth, requireAuth } from "@clerk/express";
+import { getAuth } from "@clerk/express";
 import Order from "../models/Order";
 
 const router = express.Router();
-router.use(requireAuth());
+router.use((req, res, next) => {
+  if (!getAuth(req).userId) return res.status(401).json({ error: "Logg inn for å bruke ordrehistorikken" });
+  next();
+});
 
 router.post("/", async (req, res) => {
   const { userId } = getAuth(req);

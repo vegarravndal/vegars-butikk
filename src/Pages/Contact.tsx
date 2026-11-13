@@ -32,7 +32,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 relative">
+    <div className="max-w-xl mx-auto p-6 relative">
       {/* Suksess-toast */}
       <div
         className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 w-[90%] sm:w-auto transition-all duration-300 font-medium ${
@@ -92,11 +92,11 @@ const Contact: React.FC = () => {
           <textarea
             id="message"
             required
-            rows={5}
+            rows={4}
             placeholder="Skriv meldingen din her..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y min-h-[120px]"
+            className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y min-h-[100px]"
           ></textarea>
         </div>
 

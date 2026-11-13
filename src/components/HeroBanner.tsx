@@ -38,7 +38,7 @@ const HeroBanner: React.FC = () => {
   }
 
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-full overflow-hidden mt-4 md:mt-0">
       {/* Slider */}
       <div
         className="flex transition-transform duration-700 ease-in-out"
@@ -60,7 +60,7 @@ const HeroBanner: React.FC = () => {
                 <p className="text-xl mb-6">${product.price}</p>
                 <Link
                   to={`/product/${product.id}`}
-                  className="inline-block bg-black text-white px-6 py-3 rounded-4xl hover:bg-gray-800 transition"
+                  className="inline-block bg-black text-white px-6 py-3 hover:bg-gray-800 transition"
                 >
                   View product
                 </Link>

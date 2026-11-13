@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { CartItem } from "../types/types";
 import { useState, useRef, useEffect } from "react";
-import { FiShoppingCart } from "react-icons/fi";
+import { FiShoppingCart, FiUser } from "react-icons/fi";
 import {
   SignedIn,
   SignedOut,
@@ -107,8 +107,13 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
 
           <SignedOut>
             <SignInButton mode="redirect">
-              <button className="whitespace-nowrap px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition font-medium">
-                Logg inn
+              <button
+                aria-label="Logg inn"
+                title="Logg inn"
+                className="whitespace-nowrap p-2 md:px-4 md:py-2 text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition font-medium"
+              >
+                <FiUser className="md:hidden text-lg" aria-hidden="true" />
+                <span className="hidden md:inline">Logg inn</span>
               </button>
             </SignInButton>
           </SignedOut>

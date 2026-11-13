@@ -9,14 +9,14 @@ const PopularCategories = () => {
   ];
 
   return (
-    <div className="w-full mb-12">
+    <div className="w-full pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-8 text-center">
+        <h2 className="text-2xl font-bold mb-6 text-center">
           Explore Popular Categories
         </h2>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
           {categories.map((category) => (
             <Link
               key={category.id}
@@ -34,9 +34,6 @@ const PopularCategories = () => {
             </Link>
           ))}
         </div>
-
-        {/* Ekstra margin under grid */}
-        <div className="mt-8"></div>
       </div>
     </div>
   );

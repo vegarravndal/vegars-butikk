@@ -1,9 +1,12 @@
 import express from "express";
-import { getAuth, requireAuth } from "@clerk/express";
+import { getAuth } from "@clerk/express";
 import Cart from "../models/Cart";
 
 const router = express.Router();
-router.use(requireAuth());
+router.use((req, res, next) => {
+  if (!getAuth(req).userId) return res.status(401).json({ error: "Logg inn for å bruke handlekurven" });
+  next();
+});
 
 router.get("/", async (req, res) => {
   try {
