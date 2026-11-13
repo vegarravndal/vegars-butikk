@@ -1,8 +1,9 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react"; // Importerer Clerk-autentisering
+import { useAuth } from "@clerk/clerk-react";
 import { CartItem } from "../types/types";
 import { useStore } from "../store/store";
 import { BsTrash } from "react-icons/bs";
+import { authenticatedFetch } from "../utils/api";
 
 // Lagt til clearCart i prop-definisjonen om du har en lokal state-funksjon i App.tsx
 type CheckoutProps = {
@@ -14,7 +15,7 @@ type CheckoutProps = {
 const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  const { userId, getToken } = useAuth();
   const { removeFromCartWithUser, clearCartWithUser } = useStore(); // Henter databasefunksjoner
 
   const { product, quantity } = location.state || {};
@@ -37,20 +38,15 @@ const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await authenticatedFetch(getToken, "/api/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          userId,
           items: checkoutItems.map(item => ({
             productId: item.id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
           })),
-          totalAmount: Number(totalAmount.toFixed(2)),
         }),
       });
 
@@ -60,7 +56,7 @@ const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
       
       // Tømmer handlekurven i både lokalt minne og i MongoDB-databasen
       if (!isSingleProductCheckout) {
-        await clearCartWithUser(userId);
+        clearCartWithUser(getToken);
         if (clearCart) clearCart();
       }
       
@@ -73,14 +69,14 @@ const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
 
   const handleRemoveItem = (id: string) => {
     // Kaller både databaseoppdateringen og app-state prop-funksjonen
-    removeFromCartWithUser(id, userId);
+    removeFromCartWithUser(id, getToken);
     removeFromCart(id);
   };
 
   const handleClearFullCart = async () => {
     if (window.confirm("Er du sikker på at du vil tømme hele handlekurven?")) {
       try {
-        await clearCartWithUser(userId || ""); // Sletter i MongoDB via store
+        clearCartWithUser(userId ? getToken : undefined);
         if (clearCart) clearCart(); // Sletter i lokal App.tsx state hvis den finnes
         console.log("✅ Handlekurv tømt");
       } catch (error) {

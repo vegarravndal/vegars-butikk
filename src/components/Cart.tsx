@@ -14,7 +14,7 @@ type CartProps = {
 const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
   const navigate = useNavigate();
   const cartRef = useRef<HTMLDivElement>(null);
-  const { userId } = useAuth(); // Henter den unike Clerk-bruker-ID-en
+  const { userId, getToken } = useAuth();
 
   // Henter de nye databasetilkoblede funksjonene direkte fra storen
   const { removeFromCartWithUser, clearCartWithUser } = useStore();
@@ -91,7 +91,7 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => removeFromCartWithUser(item.id, userId)} // Sender med userId ved sletting
+                  onClick={() => removeFromCartWithUser(item.id, userId ? getToken : undefined)}
                   className="text-red-500 hover:text-red-700 text-xl"
                 >
                   <BsTrash />
@@ -116,7 +116,7 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
           </button>
           {cart.length > 0 && (
             <button
-              onClick={() => clearCartWithUser(userId)} // Sender med userId ved tømming
+              onClick={() => clearCartWithUser(userId ? getToken : undefined)}
               className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
             >
               Fjern alle varer

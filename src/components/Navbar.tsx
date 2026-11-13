@@ -114,6 +114,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
           </SignedOut>
 
           <SignedIn>
+            <Link to="/orders" className="hidden sm:inline hover:underline">Mine kjøp</Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>

@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "tsx backend/server.ts",
+    "start:backend": "tsx backend/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.32.0",
+    "@clerk/express": "^2.1.89",
     "@tailwindcss/vite": "^4.0.12",
     "@types/axios": "^0.9.36",
     "@types/node": "^26.1.1",

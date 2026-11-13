@@ -1,50 +1,51 @@
 import express from "express";
+import { getAuth, requireAuth } from "@clerk/express";
 import Cart from "../models/Cart";
 
 const router = express.Router();
+router.use(requireAuth());
 
-// GET /api/cart/:userId – Hent lagret handlevogn
-router.get("/:userId", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const cart = await Cart.findOne({ userId: req.params.userId });
+    const { userId } = getAuth(req);
+    const cart = await Cart.findOne({ userId });
     res.json(cart || { items: [] });
   } catch (err) {
-    console.error("Feil ved henting av cart:", err);
-    res.status(500).json({ error: "Kunne ikke hente handlevogn" });
+    console.error("Failed to fetch cart:", err);
+    res.status(500).json({ error: "Kunne ikke hente handlekurven" });
   }
 });
 
-// POST /api/cart – Lagre eller oppdater handlevogn
-router.post("/", async (req, res) => {
-  const { userId, items } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID mangler" });
+router.put("/", async (req, res) => {
+  const { userId } = getAuth(req);
+  const items = req.body?.items;
+  if (!Array.isArray(items) || items.some((item) =>
+    typeof item?.id !== "string" || !Number.isInteger(item?.quantity) || item.quantity < 1
+  )) {
+    return res.status(400).json({ error: "Ugyldig handlekurv" });
   }
 
   try {
-    let cart = await Cart.findOne({ userId });
-    if (cart) {
-      cart.items = items;
-    } else {
-      cart = new Cart({ userId, items });
-    }
-    await cart.save();
-    res.status(200).json(cart);
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items } },
+      { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+    );
+    res.json(cart);
   } catch (err) {
-    console.error("Feil ved lagring av cart:", err);
-    res.status(500).json({ error: "Kunne ikke lagre handlevogn" });
+    console.error("Failed to save cart:", err);
+    res.status(500).json({ error: "Kunne ikke lagre handlekurven" });
   }
 });
 
-// DELETE /api/cart/:userId – Slett handlevogn
-router.delete("/:userId", async (req, res) => {
+router.delete("/", async (req, res) => {
   try {
-    await Cart.deleteOne({ userId: req.params.userId });
-    res.json({ message: "Cart cleared" });
+    const { userId } = getAuth(req);
+    await Cart.deleteOne({ userId });
+    res.status(204).end();
   } catch (err) {
-    console.error("Feil ved sletting av cart:", err);
-    res.status(500).json({ error: "Kunne ikke slette handlevogn" });
+    console.error("Failed to clear cart:", err);
+    res.status(500).json({ error: "Kunne ikke tømme handlekurven" });
   }
 });
 

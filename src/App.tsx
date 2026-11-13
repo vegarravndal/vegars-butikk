@@ -5,8 +5,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { useStore } from "./store/store";
+import { authenticatedFetch } from "./utils/api";
 
 // Komponenter
 import Navbar from "./components/Navbar";
@@ -26,6 +27,7 @@ import About from "./Pages/About";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
 import TermsAndConditions from "./Pages/TermsAndConditions";
 import Contact from "./Pages/Contact";
+import OrderHistory from "./Pages/OrderHistory";
 
 function App() {
   const { cart, originalProducts, removeFromCart, setCart, setProducts } =
@@ -34,6 +36,7 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
@@ -49,8 +52,11 @@ function App() {
   // Hent lagret handlevogn fra MongoDB med en gang brukeren logger inn
   useEffect(() => {
     if (user?.id) {
-      fetch(`http://localhost:5000/api/cart/${user.id}`)
-        .then((res) => res.json())
+      authenticatedFetch(getToken, "/api/cart")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           if (data && data.items) {
             setCart(data.items);
@@ -60,6 +66,10 @@ function App() {
           console.error("Kunne ikke hente handlevogn fra MongoDB:", err),
         );
     }
+  }, [user?.id, getToken, setCart]);
+
+  useEffect(() => {
+    if (!user?.id) setCart([]);
   }, [user?.id, setCart]);
 
   // Lukk cart når man klikker utenfor
@@ -140,6 +150,7 @@ function App() {
               element={<Checkout cart={cart} removeFromCart={removeFromCart} />}
             />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/orders" element={<OrderHistory />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route

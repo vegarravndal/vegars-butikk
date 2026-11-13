@@ -1,20 +1,17 @@
 import { create } from "zustand";
 import { Product, CartItem, Store } from "../types/types";
+import { authenticatedFetch, GetToken } from "../utils/api";
 
 // Hjelpefunksjon for å lagre til MongoDB i bakgrunnen
-const syncCartToMongoDB = async (userId: string | null | undefined, cart: CartItem[]) => {
-  if (!userId) return; // Gjør ingenting hvis brukeren ikke er logget inn
+const syncCartToMongoDB = async (getToken: GetToken, cart: CartItem[]) => {
   try {
-    await fetch("http://localhost:5000/api/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await authenticatedFetch(getToken, "/api/cart", {
+      method: "PUT",
       body: JSON.stringify({
-        userId,
         items: cart,
       }),
     });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     console.log("✅ Handlevogn synkronisert med MongoDB");
   } catch (error) {
     console.error("❌ Kunne ikke synkronisere handlevogn med MongoDB:", error);
@@ -37,9 +34,9 @@ const saveCartToLocalStorage = (cart: CartItem[]) => {
 
 // Definerer et utvidet grensesnitt for å fjerne alle "any"-feil
 interface ExtendedStore extends Store {
-  addToCartWithUser: (product: Product, quantity: number, userId: string | null | undefined) => void;
-  removeFromCartWithUser: (id: string, userId: string | null | undefined) => void;
-  clearCartWithUser: (userId: string | null | undefined) => void;
+  addToCartWithUser: (product: Product, quantity: number, getToken?: GetToken) => void;
+  removeFromCartWithUser: (id: string, getToken?: GetToken) => void;
+  clearCartWithUser: (getToken?: GetToken) => void;
 }
 
 export const useStore = create<ExtendedStore>((set) => {
@@ -103,8 +100,8 @@ export const useStore = create<ExtendedStore>((set) => {
       set({ cart: [] });
     },
 
-    // NYE funksjoner som tar imot Clerk sin userId og lagrer i MongoDB
-    addToCartWithUser: (product: Product, quantity: number, userId: string | null | undefined) =>
+    // These functions persist the cart when a signed-in Clerk token getter is provided.
+    addToCartWithUser: (product: Product, quantity: number, getToken?: GetToken) =>
       set((state) => {
         const existingItem = state.cart.find((item) => item.id === product.id);
         let newCart;
@@ -118,22 +115,22 @@ export const useStore = create<ExtendedStore>((set) => {
           newCart = [...state.cart, { ...product, quantity }];
         }
         saveCartToLocalStorage(newCart);
-        syncCartToMongoDB(userId, newCart);
+        if (getToken) void syncCartToMongoDB(getToken, newCart);
         return { cart: newCart };
       }),
 
-    removeFromCartWithUser: (id: string, userId: string | null | undefined) =>
+    removeFromCartWithUser: (id: string, getToken?: GetToken) =>
       set((state) => {
         const newCart = state.cart.filter((item) => item.id !== id);
         saveCartToLocalStorage(newCart);
-        syncCartToMongoDB(userId, newCart);
+        if (getToken) void syncCartToMongoDB(getToken, newCart);
         return { cart: newCart };
       }),
 
-    clearCartWithUser: (userId: string | null | undefined) =>
+    clearCartWithUser: (getToken?: GetToken) =>
       set(() => {
         saveCartToLocalStorage([]);
-        syncCartToMongoDB(userId, []);
+        if (getToken) void syncCartToMongoDB(getToken, []);
         return { cart: [] };
       }),
 

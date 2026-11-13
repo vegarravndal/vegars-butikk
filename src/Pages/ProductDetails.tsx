@@ -14,7 +14,7 @@ const ProductDetails: React.FC = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { userId } = useAuth();
+  const { userId, getToken } = useAuth();
 
   const { originalProducts, addToCartWithUser, cart } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
@@ -41,7 +41,7 @@ const ProductDetails: React.FC = () => {
   const handleAddToCart = () => {
     if (!product) return;
 
-    addToCartWithUser(product, quantity, userId);
+    addToCartWithUser(product, quantity, userId ? getToken : undefined);
 
     // Vis meldingen
     setShowToast(true);

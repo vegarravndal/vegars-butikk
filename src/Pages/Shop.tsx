@@ -13,7 +13,7 @@ interface ShopState {
 }
 
 const Shop: React.FC = () => {
-  const { userId } = useAuth();
+  const { userId, getToken } = useAuth();
   const {
     selectedCategory,
     setSelectedCategory,
@@ -94,7 +94,7 @@ const Shop: React.FC = () => {
     setSortOrder(order);
 
   const handleAddToCart = (product: Product, quantity: number) => {
-    addToCartWithUser(product, quantity, userId);
+    addToCartWithUser(product, quantity, userId ? getToken : undefined);
 
     const timestamp = Date.now();
     const animationId = `${product.id}-${timestamp}`;
