@@ -167,10 +167,10 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/30 z-40 flex justify-end">
+        <div className="fixed inset-0 h-dvh bg-black/30 z-40 flex justify-end">
           <div
             ref={menuRef}
-            className="bg-[#f4f1e8]/95 backdrop-blur-xl w-64 h-full p-6 relative flex flex-col"
+            className="bg-[#f4f1e8] w-64 h-dvh p-6 relative flex flex-col"
           >
             <button
               onClick={closeMobileMenu}
