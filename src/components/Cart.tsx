@@ -55,7 +55,7 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
       className={`fixed top-0 right-0 h-full z-50 w-96 transform transition-transform duration-300
         ${isCartOpen ? "translate-x-0" : "translate-x-full"}`}
     >
-      <div className="bg-white shadow-lg max-h-full overflow-y-auto p-6 flex flex-col h-full">
+      <div className="bg-white shadow-lg max-h-full overflow-y-auto p-6 pl-8 flex flex-col h-full">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Your Cart</h2>

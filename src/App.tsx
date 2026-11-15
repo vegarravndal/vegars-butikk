@@ -30,8 +30,15 @@ import Contact from "./Pages/Contact";
 import OrderHistory from "./Pages/OrderHistory";
 
 function App() {
-  const { cart, originalProducts, removeFromCart, setCart, setProducts } =
-    useStore();
+  const {
+    cart,
+    originalProducts,
+    productsLoaded,
+    productsError,
+    removeFromCart,
+    setCart,
+    setProducts,
+  } = useStore();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,11 +50,11 @@ function App() {
 
   // Last inn produkter
   useEffect(() => {
-    if (originalProducts.length > 0) {
+    if (productsLoaded) {
       setProducts(originalProducts);
       setLoading(false);
     }
-  }, [originalProducts, setProducts]);
+  }, [productsLoaded, originalProducts, setProducts]);
 
   // Hent lagret handlevogn fra MongoDB med en gang brukeren logger inn
   useEffect(() => {
@@ -88,8 +95,10 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isCartOpen]);
 
-  if (loading)
+  if (loading && !productsLoaded)
     return <div className="p-10 text-center">Loading products...</div>;
+  if (productsError && originalProducts.length === 0)
+    return <div className="p-10 text-center">{productsError}</div>;
 
   return (
     <Router>

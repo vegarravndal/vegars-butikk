@@ -10,9 +10,9 @@ interface Product {
 }
 
 const bgColors = [
-  "bg-gray-100",
-  "bg-blue-100",
-  "bg-rose-100",
+  "bg-[#dce9df]",
+  "bg-[#eee2d2]",
+  "bg-[#e9e5d9]",
 ];
 
 const HeroBanner: React.FC = () => {
@@ -53,7 +53,7 @@ const HeroBanner: React.FC = () => {
           >
             <div className="max-w-7xl mx-auto h-full px-6 flex flex-col md:flex-row items-center justify-between">
               {/* Text */}
-              <div className="max-w-md text-center md:text-left">
+              <div className="max-w-md p-4 sm:p-6 text-center md:text-left bg-white/45 backdrop-blur-xl border border-white/60 shadow-xl">
                 <h2 className="text-3xl sm:text-4xl font-bold mb-4">
                   {product.name}
                 </h2>
@@ -71,7 +71,7 @@ const HeroBanner: React.FC = () => {
                 <img
                   src={product.imageUrl || "/fallback.jpg"}
                   alt={product.name}
-                  className="max-h-[300px] w-auto object-contain"
+                  className="max-h-[180px] sm:max-h-[240px] md:max-h-[300px] w-auto object-contain"
                 />
               </div>
             </div>

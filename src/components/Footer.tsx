@@ -2,16 +2,16 @@ import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
-    <footer className="bg-gray-200 text-blue-500 p-4 overflow-auto border-t border-gray-300 mt-auto">
+    <footer className="bg-[#193d34] text-[#f4f1e8] p-4 overflow-auto border-t border-[#36574b] mt-auto">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start space-y-8 sm:space-y-0 sm:space-x-20 py-6">
         {/* Venstre side med Logo og beskrivelse */}
         <div className="flex flex-col items-start">
           <img
             src="/images/logo.svg"
             alt="Vegars Butikk Logo"
-            className="h-16 w-auto mb-4"
+            className="h-16 w-auto mb-4 brightness-0 invert"
           />
-          <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+          <p className="text-[#c8d3c7] text-sm max-w-xs leading-relaxed">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
             eros nec leo consectetur convallis. Integer et erat in dui
             sollicitudin mollis.
@@ -22,22 +22,22 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-20">
           {/* Quick Links */}
           <div>
-            <h2 className="text-black text-xl font-semibold mb-4">
+            <h2 className="text-[#f4f1e8] text-xl font-semibold mb-4">
               Quicklinks
             </h2>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-700 hover:text-blue-500 transition">
+              <Link to="/" className="text-[#e5e9dd] hover:text-[#e5b879] transition">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-700 hover:text-blue-500 transition">
+                <Link to="/about" className="text-[#e5e9dd] hover:text-[#e5b879] transition">
                   About
                 </Link>
               </li>
               <li>
-                <Link to="/shop" className="text-gray-700 hover:text-blue-500 transition">
+                <Link to="/shop" className="text-[#e5e9dd] hover:text-[#e5b879] transition">
                   Shop
                 </Link>
               </li>
@@ -46,14 +46,14 @@ export function Footer() {
 
           {/* Information */}
           <div>
-            <h2 className="text-black text-xl font-semibold mb-4">
+            <h2 className="text-[#f4f1e8] text-xl font-semibold mb-4">
               Information
             </h2>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/contact"
-                  className="text-gray-700 hover:text-blue-500 transition"
+                  className="text-[#e5e9dd] hover:text-[#e5b879] transition"
                 >
                   Contact
                 </Link>
@@ -61,7 +61,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/privacy-policy"
-                  className="text-gray-700 hover:text-blue-500 transition"
+                  className="text-[#e5e9dd] hover:text-[#e5b879] transition"
                 >
                   Privacy Policy
                 </Link>
@@ -69,7 +69,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/terms-and-conditions"
-                  className="text-gray-700 hover:text-blue-500 transition"
+                  className="text-[#e5e9dd] hover:text-[#e5b879] transition"
                 >
                   Terms & Conditions
                 </Link>
@@ -80,7 +80,7 @@ export function Footer() {
       </div>
 
       {/* Bunnseksjon med automatisk årstall */}
-      <div className="text-center mt-8 text-gray-500 text-sm border-t border-gray-300/50 pt-4">
+      <div className="text-center mt-8 text-[#aebdb0] text-sm border-t border-white/15 pt-4">
         <p>&copy; {new Date().getFullYear()} VEGARS BUTIKK</p>
       </div>
     </footer>

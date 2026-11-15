@@ -56,15 +56,15 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
   }, [isMobileMenuOpen]);
 
   return (
-    <nav className="bg-white shadow-md relative z-50">
-      <div className="max-w-6xl mx-auto flex justify-between items-center p-4 text-gray-950">
+    <nav className="bg-[#193d34]/95 backdrop-blur-xl border-b border-white/10 shadow-lg relative z-50">
+      <div className="max-w-6xl mx-auto flex justify-between items-center p-4 text-[#f4f1e8]">
         {/* Logo + Desktop nav */}
         <div className="flex items-center min-w-0 flex-1 md:flex-none space-x-6">
           <Link to="/" className="flex items-center shrink-0">
             <img
               src="/images/logo.svg"
               alt="Vegars Butikk Logo"
-              className="h-12 w-auto md:h-16"
+              className="h-12 w-auto brightness-0 invert md:h-16"
             />
           </Link>
 
@@ -95,9 +95,9 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
           <button
             data-cart-btn="true"
             onClick={handleCartClick}
-            className="hover:text-blue-500 flex items-center relative focus:outline-none p-1"
+            className="hover:text-[#e5b879] flex items-center relative focus:outline-none p-1"
           >
-            <FiShoppingCart className="text-gray-950 text-2xl md:text-3xl hover:text-blue-500" />
+            <FiShoppingCart className="text-[#f4f1e8] text-2xl md:text-3xl hover:text-[#e5b879]" />
             {totalQuantity > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center pointer-events-none">
                 {totalQuantity}
@@ -110,7 +110,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
               <button
                 aria-label="Logg inn"
                 title="Logg inn"
-                className="whitespace-nowrap p-2 md:px-4 md:py-2 text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition font-medium"
+                className="whitespace-nowrap p-2 md:px-4 md:py-2 text-sm border border-[#d6ac78] text-[#f4dfc1] rounded-md hover:bg-[#d6ac78] hover:text-[#193d34] transition font-medium"
               >
                 <FiUser className="md:hidden text-lg" aria-hidden="true" />
                 <span className="hidden md:inline">Logg inn</span>
@@ -128,7 +128,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
         <div className="md:hidden flex items-center ml-3 shrink-0">
           <button
             onClick={toggleMobileMenu}
-            className="text-gray-950 focus:outline-none"
+            className="text-[#f4f1e8] focus:outline-none"
           >
             {isMobileMenuOpen ? (
               <svg
@@ -170,7 +170,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
         <div className="fixed inset-0 bg-black/30 z-40 flex justify-end">
           <div
             ref={menuRef}
-            className="bg-white w-64 h-full p-6 relative flex flex-col"
+            className="bg-[#f4f1e8]/95 backdrop-blur-xl w-64 h-full p-6 relative flex flex-col"
           >
             <button
               onClick={closeMobileMenu}

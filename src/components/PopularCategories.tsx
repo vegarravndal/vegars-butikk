@@ -1,12 +1,19 @@
 import { Link } from "react-router-dom";
-import { categoryDisplayNames } from "../utils/categoryNames";
+import { useStore } from "../store/store";
+import { getMainCategoryId, mainCategoryIds, categoryDisplayNames } from "../utils/categoryNames";
 
 const PopularCategories = () => {
-  const categories = [
-    { id: "accessories", name: categoryDisplayNames.accessories, imageUrl: "/images/1.jpg" },
-    { id: "clothing", name: categoryDisplayNames.clothing, imageUrl: "/images/2.jpg" },
-    { id: "home", name: categoryDisplayNames.home, imageUrl: "/images/3.jpg" },
-  ];
+  const products = useStore((state) => state.originalProducts);
+  const categories = mainCategoryIds.flatMap((id) => {
+    const product = products.find(
+      (item) => (item.mainCategory || getMainCategoryId(item.category)) === id,
+    );
+    return product
+      ? [{ id, name: categoryDisplayNames[id], imageUrl: product.imageUrl }]
+      : [];
+  });
+
+  if (categories.length === 0) return null;
 
   return (
     <div className="w-full pb-12">
@@ -21,7 +28,7 @@ const PopularCategories = () => {
             <Link
               key={category.id}
               to={`/shop/${category.id}`}
-              className="flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105"
+              className="flex w-full max-w-xs flex-col items-center justify-center border border-white/65 bg-white/35 p-5 shadow-md backdrop-blur-lg transition duration-300 hover:-translate-y-1 hover:bg-white/55 hover:shadow-xl"
             >
               <img
                 src={category.imageUrl}

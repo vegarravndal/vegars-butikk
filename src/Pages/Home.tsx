@@ -6,7 +6,7 @@ const Home: React.FC = () => {
   return (
     <>
       {/* Forsideinnhold under HeroBanner */}
-      <section className="mt-4 max-w-7xl mx-auto text-center sm:text-left bg-gray-200 p-6 sm:p-8">
+      <section className="mt-4 max-w-7xl mx-auto text-center sm:text-left bg-white/45 backdrop-blur-xl border border-white/70 shadow-xl p-6 sm:p-8">
         <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">
           Welcome to Our Store
         </h1>

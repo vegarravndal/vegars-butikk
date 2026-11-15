@@ -1,4 +1,4 @@
-// types.ts
+import type { MainCategoryId } from "../utils/categoryNames";
 
 // Product type with id as string (consistent with the store)
 export interface Product {
@@ -9,7 +9,7 @@ export interface Product {
   imageUrl: string;
   description: string; // Add description field
   code?: string;
-  mainCategory?: string;
+  mainCategory?: MainCategoryId | "other";
 }
 
 // CartItem extends Product with quantity
@@ -22,6 +22,8 @@ export interface Store {
   cart: CartItem[];
   products: Product[];
   originalProducts: Product[];
+  productsLoaded: boolean;
+  productsError: string | null;
   selectedCategory: string | null;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (id: string) => void;

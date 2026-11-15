@@ -1,155 +1,149 @@
 import { create } from "zustand";
-import { Product, CartItem, Store } from "../types/types";
-import { authenticatedFetch, GetToken } from "../utils/api";
+import type { CartItem, Product, Store } from "../types/types";
+import { authenticatedFetch, type GetToken } from "../utils/api";
+import { getMainCategoryId } from "../utils/categoryNames";
 
-// Hjelpefunksjon for å lagre til MongoDB i bakgrunnen
-const syncCartToMongoDB = async (getToken: GetToken, cart: CartItem[]) => {
-  try {
-    const response = await authenticatedFetch(getToken, "/api/cart", {
-      method: "PUT",
-      body: JSON.stringify({
-        items: cart,
-      }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    console.log("✅ Handlevogn synkronisert med MongoDB");
-  } catch (error) {
-    console.error("❌ Kunne ikke synkronisere handlevogn med MongoDB:", error);
-  }
-};
-
-const loadCartFromLocalStorage = (): CartItem[] => {
-  const storedCart = localStorage.getItem("cart");
-  try {
-    return storedCart ? JSON.parse(storedCart) : [];
-  } catch (error) {
-    console.error("Error loading cart from localStorage", error);
-    return [];
-  }
-};
-
-const saveCartToLocalStorage = (cart: CartItem[]) => {
-  localStorage.setItem("cart", JSON.stringify(cart));
-};
-
-// Definerer et utvidet grensesnitt for å fjerne alle "any"-feil
 interface ExtendedStore extends Store {
   addToCartWithUser: (product: Product, quantity: number, getToken?: GetToken) => void;
   removeFromCartWithUser: (id: string, getToken?: GetToken) => void;
   clearCartWithUser: (getToken?: GetToken) => void;
 }
 
+interface RemoteProduct {
+  id: number;
+  title?: string;
+  name?: string;
+  category?: string;
+  price: number;
+  thumbnail?: string;
+  images?: string[];
+  description?: string;
+}
+
+const loadCartFromLocalStorage = (): CartItem[] => {
+  try {
+    const savedCart = localStorage.getItem("cart");
+    const parsedCart: unknown = savedCart ? JSON.parse(savedCart) : [];
+    return Array.isArray(parsedCart) ? (parsedCart as CartItem[]) : [];
+  } catch (error) {
+    console.error("Could not load cart from local storage:", error);
+    return [];
+  }
+};
+
+const saveCartToLocalStorage = (cart: CartItem[]) => {
+  try {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  } catch (error) {
+    console.error("Could not save cart to local storage:", error);
+  }
+};
+
+const addItem = (cart: CartItem[], product: Product, quantity: number) => {
+  const existingItem = cart.find((item) => item.id === product.id);
+  return existingItem
+    ? cart.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + quantity }
+          : item,
+      )
+    : [...cart, { ...product, quantity }];
+};
+
+const persistCart = (cart: CartItem[], getToken?: GetToken) => {
+  saveCartToLocalStorage(cart);
+  if (getToken) void syncCartToMongoDB(getToken, cart);
+};
+
+const syncCartToMongoDB = async (getToken: GetToken, cart: CartItem[]) => {
+  try {
+    const response = await authenticatedFetch(getToken, "/api/cart", {
+      method: "PUT",
+      body: JSON.stringify({ items: cart }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  } catch (error) {
+    console.error("Could not sync cart with MongoDB:", error);
+  }
+};
+
+const mapRemoteProduct = (product: RemoteProduct): Product => {
+  const category = product.category || "other";
+  return {
+    id: String(product.id),
+    name: product.title || product.name || "Unnamed product",
+    category,
+    mainCategory: getMainCategoryId(category),
+    price: Number(product.price) || 0,
+    imageUrl: product.thumbnail || product.images?.[0] || "/images/1.jpg",
+    description: product.description || "",
+  };
+};
+
 export const useStore = create<ExtendedStore>((set) => {
   const initialState: ExtendedStore = {
     cart: loadCartFromLocalStorage(),
-    selectedCategory: null,
-    originalProducts: [
-      {
-        id: "1",
-        name: "Laptop",
-        category: "electronics",
-        price: 999,
-        imageUrl: "/images/1.jpg",
-        description: "A high-performance laptop with a powerful processor, perfect for gaming and productivity.",
-      },
-      {
-        id: "2",
-        name: "High heels",
-        category: "clothing",
-        price: 79,
-        imageUrl: "/images/2.jpg",
-        description: "Elegant and stylish, these high heels add the perfect touch of sophistication to any outfit.",
-      },
-      {
-        id: "3",
-        name: "Organic cleaner",
-        category: "home",
-        price: 14,
-        imageUrl: "/images/3.jpg",
-        description: "Our Eco-friendly Organic Cleaner effectively tackles dirt and stains without harmful chemicals.",
-      },
-    ],
     products: [],
+    originalProducts: [],
+    productsLoaded: false,
+    productsError: null,
+    selectedCategory: null,
 
-    // Gamle funksjoner peker direkte til de nye for å unngå "defined but never used"-feil
-    addToCart: (product: Product, quantity: number) => {
-      // Fallback uten bruker lagrer kun lokalt
+    addToCart: (product, quantity) =>
       set((state) => {
-        const existingItem = state.cart.find((item) => item.id === product.id);
-        let newCart;
-        if (existingItem) {
-          newCart = state.cart.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-          );
-        } else {
-          newCart = [...state.cart, { ...product, quantity }];
-        }
-        saveCartToLocalStorage(newCart);
-        return { cart: newCart };
-      });
-    },
-    removeFromCart: (id: string) => {
+        const cart = addItem(state.cart, product, quantity);
+        persistCart(cart);
+        return { cart };
+      }),
+
+    addToCartWithUser: (product, quantity, getToken) =>
       set((state) => {
-        const newCart = state.cart.filter((item) => item.id !== id);
-        saveCartToLocalStorage(newCart);
-        return { cart: newCart };
-      });
-    },
+        const cart = addItem(state.cart, product, quantity);
+        persistCart(cart, getToken);
+        return { cart };
+      }),
+
+    removeFromCart: (id) =>
+      set((state) => {
+        const cart = state.cart.filter((item) => item.id !== id);
+        persistCart(cart);
+        return { cart };
+      }),
+
+    removeFromCartWithUser: (id, getToken) =>
+      set((state) => {
+        const cart = state.cart.filter((item) => item.id !== id);
+        persistCart(cart, getToken);
+        return { cart };
+      }),
+
     clearCart: () => {
-      saveCartToLocalStorage([]);
+      persistCart([]);
       set({ cart: [] });
     },
 
-    // These functions persist the cart when a signed-in Clerk token getter is provided.
-    addToCartWithUser: (product: Product, quantity: number, getToken?: GetToken) =>
-      set((state) => {
-        const existingItem = state.cart.find((item) => item.id === product.id);
-        let newCart;
-        if (existingItem) {
-          newCart = state.cart.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + quantity }
-              : item
-          );
-        } else {
-          newCart = [...state.cart, { ...product, quantity }];
-        }
-        saveCartToLocalStorage(newCart);
-        if (getToken) void syncCartToMongoDB(getToken, newCart);
-        return { cart: newCart };
-      }),
+    clearCartWithUser: (getToken) => {
+      persistCart([], getToken);
+      set({ cart: [] });
+    },
 
-    removeFromCartWithUser: (id: string, getToken?: GetToken) =>
-      set((state) => {
-        const newCart = state.cart.filter((item) => item.id !== id);
-        saveCartToLocalStorage(newCart);
-        if (getToken) void syncCartToMongoDB(getToken, newCart);
-        return { cart: newCart };
-      }),
-
-    clearCartWithUser: (getToken?: GetToken) =>
-      set(() => {
-        saveCartToLocalStorage([]);
-        if (getToken) void syncCartToMongoDB(getToken, []);
-        return { cart: [] };
-      }),
-
-    setCart: (cart: CartItem[]) => {
+    setCart: (cart) => {
       saveCartToLocalStorage(cart);
       set({ cart });
     },
 
-    setSelectedCategory: (category: string | null) =>
-      set((state) => {
-        const filteredProducts = category
+    setSelectedCategory: (category) =>
+      set((state) => ({
+        selectedCategory: category,
+        products: category
           ? state.originalProducts.filter(
-              (product) => (product.mainCategory || product.category) === category
+              (product) =>
+                (product.mainCategory || getMainCategoryId(product.category)) === category,
             )
-          : state.originalProducts;
-        return { selectedCategory: category, products: filteredProducts };
-      }),
+          : state.originalProducts,
+      })),
 
-    setProducts: (products: Product[]) => set({ products }),
+    setProducts: (products) => set({ products }),
 
     resetFilters: () =>
       set((state) => ({
@@ -158,38 +152,22 @@ export const useStore = create<ExtendedStore>((set) => {
       })),
   };
 
-  (async function fetchRemoteProducts() {
+  const loadProducts = async () => {
     try {
-      const res = await fetch('https://dummyjson.com/products?limit=100');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json() as { products: Array<{ id: number; title?: string; name?: string; category?: string; price: number; thumbnail: string; images?: string[]; description?: string }> };
-      const mapMainCategory = (cat: string | undefined) => {
-        const c = (cat || '').toLowerCase();
-        if (/(phone|mobile|laptop|computer|electronics|audio|watches|shoes)/.test(c)) return 'accessories';
-        if (/(shirt|clothing|mens|womens|beauty|makeup|eyeshadow|lipstick|apparel)/.test(c)) return 'clothing';
-        if (/(home|furniture|kitchen|groceries|decor)/.test(c)) return 'home';
-        return 'other';
-      };
-
-      const mapped: Product[] = (data.products || []).map((p) => {
-        const category = p.category || 'other';
-        return {
-          id: String(p.id),
-          name: p.title || p.name || '',
-          category,
-          mainCategory: mapMainCategory(category),
-          price: Number(p.price) || 0,
-          imageUrl: p.thumbnail || (p.images && p.images[0]) || '/images/1.jpg',
-          description: p.description || '',
-        } as Product;
-      });
-      if (mapped.length > 0) {
-        set({ originalProducts: mapped, products: mapped });
-      }
+      const response = await fetch("https://dummyjson.com/products?limit=100");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = (await response.json()) as { products: RemoteProduct[] };
+      const products = (data.products || []).map(mapRemoteProduct);
+      set({ originalProducts: products, products, productsLoaded: true });
     } catch (error) {
-      console.error('Failed to fetch products from remote API', error);
+      console.error("Could not load products:", error);
+      set({
+        productsLoaded: true,
+        productsError: "Kunne ikke laste produktene. Prøv å laste siden på nytt.",
+      });
     }
-  })();
+  };
 
-  return { ...initialState, products: initialState.originalProducts };
+  void loadProducts();
+  return initialState;
 });

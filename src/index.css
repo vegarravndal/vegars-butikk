@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+@theme {
+  --color-blue-50: #edf4ef;
+  --color-blue-100: #dce9df;
+  --color-blue-200: #bdd4c3;
+  --color-blue-300: #96b79f;
+  --color-blue-400: #70947b;
+  --color-blue-500: #52775f;
+  --color-blue-600: #3b624c;
+  --color-blue-700: #2d4d3c;
+  --color-blue-800: #213b2f;
+  --color-blue-900: #172d24;
+  --color-blue-950: #0c1a14;
+
+  --color-gray-50: #fbfaf6;
+  --color-gray-100: #f3f1e9;
+  --color-gray-200: #e7e3d8;
+  --color-gray-300: #d5cebd;
+  --color-gray-400: #aaa18f;
+  --color-gray-500: #786f61;
+  --color-gray-600: #60584c;
+  --color-gray-700: #494338;
+  --color-gray-800: #30332c;
+  --color-gray-900: #202b25;
+  --color-gray-950: #15201a;
+}
+
+body {
+  min-width: 320px;
+  color: #24352d;
+  background:
+    radial-gradient(ellipse at 8% 5%, rgb(220 233 223 / 72%), transparent 34%),
+    radial-gradient(ellipse at 92% 22%, rgb(239 226 208 / 58%), transparent 30%),
+    #f4f1e8;
+  background-attachment: fixed;
+}
+
 html {
   overflow-y: scroll;
 }
