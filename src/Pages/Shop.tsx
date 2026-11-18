@@ -138,6 +138,8 @@ const Shop: React.FC = () => {
         onCategoryChange={handleCategoryChange}
         onPriceFilterChange={handlePriceFilterChange}
         onSortChange={handleSortChange}
+        appliedMinPrice={minPrice}
+        appliedMaxPrice={maxPrice}
       />
 
       <main className="flex-1 w-full py-4 md:py-8 overflow-auto">

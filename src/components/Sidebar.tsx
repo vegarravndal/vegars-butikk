@@ -8,6 +8,8 @@ type SidebarProps = {
   onCategoryChange: (category: string | null) => void;
   onPriceFilterChange: (minPrice: number, maxPrice: number) => void;
   onSortChange: (sortOrder: "price-asc" | "price-desc") => void;
+  appliedMinPrice: number;
+  appliedMaxPrice: number;
 };
 
 const Sidebar = ({
@@ -15,6 +17,8 @@ const Sidebar = ({
   onCategoryChange,
   onPriceFilterChange,
   onSortChange,
+  appliedMinPrice,
+  appliedMaxPrice,
 }: SidebarProps) => {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
@@ -94,7 +98,10 @@ const Sidebar = ({
 
             {categories.map((category) => {
               const items = originalProducts.filter(
-                (p) => (p.mainCategory || p.category) === category
+                (p) =>
+                  (p.mainCategory || p.category) === category &&
+                  p.price >= appliedMinPrice &&
+                  p.price <= appliedMaxPrice,
               );
               return (
                 <li key={category}>
