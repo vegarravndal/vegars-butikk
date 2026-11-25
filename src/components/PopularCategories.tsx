@@ -1,13 +1,40 @@
 import { Link } from "react-router-dom";
 import { useStore } from "../store/store";
-import { getMainCategoryId, mainCategoryIds, categoryDisplayNames } from "../utils/categoryNames";
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "../utils/shopFilters";
+import {
+  categoryDisplayNames,
+  getMainCategoryId,
+  mainCategoryIds,
+} from "../utils/categoryNames";
+
+const preferredProductCategories: Record<string, string[]> = {
+  accessories: ["mobile-accessories", "smartphones", "laptops", "tablets", "sunglasses"],
+  clothing: ["tops", "mens-shirts", "womens-dresses", "womens-bags"],
+  home: ["furniture", "home-decoration", "kitchen-accessories", "groceries"],
+};
 
 const PopularCategories = () => {
-  const products = useStore((state) => state.originalProducts);
+  const allProducts = useStore((state) => state.originalProducts);
+  const products = allProducts.filter(
+    (product) =>
+      product.price >= DEFAULT_MIN_PRICE &&
+      product.price <= DEFAULT_MAX_PRICE &&
+      product.imageUrl !== "/images/1.jpg",
+  );
   const categories = mainCategoryIds.flatMap((id) => {
-    const product = products.find(
+    const matchingProducts = products.filter(
       (item) => (item.mainCategory || getMainCategoryId(item.category)) === id,
     );
+    const productsWithImages = matchingProducts.filter(
+      (item) => item.imageUrl && item.imageUrl !== "/images/1.jpg",
+    );
+    const priorities = preferredProductCategories[id] || [];
+    const product =
+      priorities
+        .map((category) =>
+          productsWithImages.find((item) => item.category === category),
+        )
+        .find(Boolean) || productsWithImages[0] || matchingProducts[0];
     return product
       ? [{ id, name: categoryDisplayNames[id], imageUrl: product.imageUrl }]
       : [];

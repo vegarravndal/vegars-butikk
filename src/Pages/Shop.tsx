@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "../types/types";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { FiShoppingCart } from "react-icons/fi";
+import { BsCart3 } from "react-icons/bs";
 import { useAuth } from "@clerk/clerk-react";
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import Sidebar from "../components/Sidebar";
 import { useStore } from "../store/store";
 import { FaCheckCircle } from "react-icons/fa"; // Lagt til for suksessikon
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "../utils/shopFilters";
 
 interface ShopState {
   selectedCategory?: string | null;
@@ -30,8 +31,8 @@ const Shop: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(
     products || [],
   );
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(1000);
+  const [minPrice, setMinPrice] = useState<number>(DEFAULT_MIN_PRICE);
+  const [maxPrice, setMaxPrice] = useState<number>(DEFAULT_MAX_PRICE);
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc">(
     "price-asc",
   );
@@ -206,7 +207,7 @@ const Shop: React.FC = () => {
                                 className="relative bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md focus:outline-none"
                                 title="Legg i handlekurv"
                               >
-                                <FiShoppingCart size={18} />
+                                <BsCart3 size={18} />
 
                                 {animations
                                   .filter(

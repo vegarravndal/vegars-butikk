@@ -74,7 +74,7 @@ const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
   };
 
   const handleClearFullCart = async () => {
-    if (window.confirm("Er du sikker på at du vil tømme hele handlekurven?")) {
+    if (window.confirm("Are you sure you want to clear your cart?")) {
       try {
         clearCartWithUser(userId ? getToken : undefined);
         if (clearCart) clearCart(); // Sletter i lokal App.tsx state hvis den finnes
@@ -158,7 +158,7 @@ const Checkout = ({ cart, removeFromCart, clearCart }: CheckoutProps) => {
                 onClick={handleClearFullCart}
                 className="w-full sm:w-auto px-6 py-3 border border-red-200 text-red-600 rounded-lg text-lg font-medium hover:bg-red-50 transition focus:outline-none focus:ring-2 focus:ring-red-200"
               >
-                Tøm handlekurv
+                Clear cart
               </button>
             )}
 

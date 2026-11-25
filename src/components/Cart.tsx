@@ -119,7 +119,7 @@ const Cart = ({ cart, isCartOpen, closeCart }: CartProps) => {
               onClick={() => clearCartWithUser(userId ? getToken : undefined)}
               className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
             >
-              Fjern alle varer
+              Remove all items
             </button>
           )}
         </div>

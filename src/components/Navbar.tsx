@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { CartItem } from "../types/types";
 import { useState, useRef, useEffect } from "react";
-import { FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
+import { BsCart3 } from "react-icons/bs";
 import {
   SignedIn,
   SignedOut,
@@ -97,7 +98,7 @@ const Navbar = ({ cart, isCartOpen, openCart, closeCart }: NavbarProps) => {
             onClick={handleCartClick}
             className="hover:text-[#e5b879] flex items-center relative focus:outline-none p-1"
           >
-            <FiShoppingCart className="text-[#f4f1e8] text-2xl md:text-3xl hover:text-[#e5b879]" />
+            <BsCart3 className="text-[#f4f1e8] text-2xl md:text-3xl hover:text-[#e5b879]" />
             {totalQuantity > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center pointer-events-none">
                 {totalQuantity}

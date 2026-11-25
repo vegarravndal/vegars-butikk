@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useStore } from "../store/store";
 import { getCategoryDisplayName } from "../utils/categoryNames";
 import { FaMinus, FaFilter, FaTimes } from "react-icons/fa"; // Lagt til ikoner
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "../utils/shopFilters";
 
 type SidebarProps = {
   selectedCategory: string | null;
@@ -20,8 +21,8 @@ const Sidebar = ({
   appliedMinPrice,
   appliedMaxPrice,
 }: SidebarProps) => {
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [minPrice, setMinPrice] = useState(DEFAULT_MIN_PRICE);
+  const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
   const [isOpen, setIsOpen] = useState(false); // Stat for mobil-meny (åpen/lukket)
 
   const { originalProducts } = useStore();
